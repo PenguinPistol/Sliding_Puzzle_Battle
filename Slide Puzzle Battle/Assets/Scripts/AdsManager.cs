@@ -1,22 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using GoogleMobileAds.Api;
-//using com.PlugStudio.Ads;
+using com.PlugStudio.Patterns;
 
-public class test : MonoBehaviour
+public class AdsManager : Singleton<AdsManager>
 {
-    string interUnit = "ca-app-pub-3117214092102716/2511139154";
-    string rewardUnit = "ca-app-pub-3117214092102716/9890935729";
+    private const string appId = "ca-app-pub-3117214092102716~2998811044";
+    private const string interUnit = "ca-app-pub-3117214 092102716/2511139154";
+    private const string rewardUnit = "ca-app-pub-3117214092102716/9890935729";
+    private const string bannerId = "ca-app-pub-3117214092102716/6839188987";
 
+    // 배너 광고
+    private GoogleAdsBanner banner;
+    // 전면 광고
     private GoogleAdsInterstitial inter;
+    // 보상형 광고
     private GoogleAdsReward reward;
+
+    private void Awake()
+    {
+        MobileAds.Initialize(appId);
+    }
 
     private void Start()
     {
-        MobileAds.Initialize("ca-app-pub-3117214092102716~2998811044");
-
-        //ca-app-pub-3117214092102716/2511139154
+        banner = new GoogleAdsBanner.Builder(bannerId, AdSize.SmartBanner)
+               .SetTestMode(true)
+               .Build();
+        banner.Request();
 
         inter = new GoogleAdsInterstitial.Builder(interUnit)
             .SetTestMode(true)
@@ -34,6 +45,7 @@ public class test : MonoBehaviour
             .Build();
 
         reward.Request();
+
     }
 
     public void ShowReward()

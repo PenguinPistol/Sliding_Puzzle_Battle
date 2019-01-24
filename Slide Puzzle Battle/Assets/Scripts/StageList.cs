@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+using com.PlugStudio.Patterns;
 
 public class StageList : ListView<StageListItem, StageData>
 {
@@ -47,15 +47,13 @@ public class StageList : ListView<StageListItem, StageData>
                 SelectItem(listItem.Id);
             });
 
-
             items.Add(listItem);
         }
     }
 
     public override void SelectItem(int _index)
     {
-        Debug.Log("index : " + _index);
-        SceneManager.LoadScene("Game");
-        GameManager.Instance.Init(items[_index].Data);
+        StateController.Instance.ChangeState("Game");
+        GameManager.Instance.StartGame(items[_index].Data);
     }
 }

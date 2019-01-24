@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using com.PlugStudio.Patterns;
-using GoogleMobileAds.Api;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -44,31 +43,16 @@ public class GameManager : Singleton<GameManager>
     public float spacing;
     // 실제 타일놓는 보드 크기
     public float boardWidth;
-
-    // 배너 광고
-    private GoogleAdsBanner banner;
-    private string bannerId = "ca-app-pub-3117214092102716/6839188987";
-
-
-    public void Init(StageData _stage)
+    
+    public void StartGame(StageData _stage)
     {
-        banner = new GoogleAdsBanner.Builder(bannerId, AdSize.SmartBanner)
-               .SetTestMode(true)
-               .Build();
-
         stage = _stage;
-    }
-
-    public void StartGame()
-    {
-        banner.Request();
-
-        factory = new TileFactory(tilePrefab, board.transform);
 
         if(state == PlayState.Ready && !isPlaying)
         {
             state = PlayState.Play;
             isPlaying = true;
+            factory = new TileFactory(tilePrefab, board.transform);
 
             //boardSize = Database.Instance....
             // 1000 / boardSize - 20;

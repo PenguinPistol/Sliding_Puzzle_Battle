@@ -5,10 +5,10 @@ namespace com.PlugStudio.Patterns
 {
     public abstract class State : MonoBehaviour, ITouchObservable
     {
-        //private StateController controller;
-        //public StateController Controller { get { return controller; } set { controller = value; } }
+        private StateController controller;
+        public StateController Controller { get { return controller; } set { controller = value; } }
 
-        public GameObject stateUI;
+        public GameObject canvas;
 
         public abstract void Init(params object[] datas);
         public abstract void Execute();
