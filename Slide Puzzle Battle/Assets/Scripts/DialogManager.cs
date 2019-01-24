@@ -17,11 +17,6 @@ public class DialogManager : Singleton<DialogManager>
     public Canvas canvas;
     public GameObject dialogPrefab;
 
-    private void Start()
-    {
-        dialogs = new Dictionary<string, GameObject>();
-    }
-
     private void InitDialog(Transform _dialog, DialogData _data)
     {
         var message = _dialog.Find(DIALOG_MESSAGE).GetComponent<Text>();
@@ -50,6 +45,11 @@ public class DialogManager : Singleton<DialogManager>
 
     public void AddDialog(DialogData _data, string _name)
     {
+        if(dialogs == null)
+        {
+            dialogs = new Dictionary<string, GameObject>();
+        }
+
         if (dialogs.ContainsKey(_name))
         {
             return;

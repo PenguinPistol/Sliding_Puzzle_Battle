@@ -77,7 +77,10 @@ public class GameManager : Singleton<GameManager>
 
         for (int i = 0; i < tileCount; i++)
         {
-            factory.Create(TileFactory.TileType.Normal, 0);
+            var types = System.Enum.GetValues(typeof(TileFactory.TileType));
+            var type = (TileFactory.TileType)Random.Range(0, types.Length);
+
+            factory.Create(type, 1);
         }
     }
 
@@ -114,6 +117,8 @@ public class GameManager : Singleton<GameManager>
     public void FinishGame()
     {
         isPlaying = false;
+
+        DeleteBoard();
     }
 
 
@@ -152,5 +157,7 @@ public class GameManager : Singleton<GameManager>
 
             yield return null;
         }
+
+        state = PlayState.Ready;
     }
 }

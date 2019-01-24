@@ -7,7 +7,7 @@ public class TileFactory
 {
     public enum TileType
     {
-        Normal, Monster, Sword, Bomb, Bow
+        Normal, Monster, Attack, Bomb, Arrow
     }
 
     private Transform board;
@@ -22,12 +22,28 @@ public class TileFactory
     public Tile Create(TileType _type, float _rate)
     {
         TileData data = new NormalTile(null, 0);
+        Sprite icon = null;
 
-        switch(_type)
+        switch (_type)
         {
             case TileType.Monster:
-                Sprite icon = Resources.Load<Sprite>("");
+                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Monster");
                 data = new MonsterTile(icon, _rate);
+                break;
+
+            case TileType.Attack:
+                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Attack");
+                data = new AttackTile(icon, _rate);
+                break;
+
+            case TileType.Bomb:
+                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Boom");
+                data = new BoomTile(icon, _rate);
+                break;
+
+            case TileType.Arrow:
+                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Arrow");
+                data = new ArrowTile(icon, _rate);
                 break;
 
         }

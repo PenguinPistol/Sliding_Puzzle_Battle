@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NormalTile : TileData
+public class AttackTile : TileData
 {
-    public NormalTile(Sprite _icon, float _rate)
+    public AttackTile(Sprite _icon, float _rate)
         : base(_icon, _rate)
     {
-        _icon = null;
-        _rate = 0;
+        rate = 0;
     }
 
     public override void AfterAttack()

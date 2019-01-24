@@ -13,8 +13,7 @@ public class StageSelect : State
             .SetNegativeText("취소")
             .SetPositiveAction(() => {
                 Application.Quit();
-            })
-            .Build();
+            }).Build();
 
         DialogManager.Instance.AddDialog(testDialog, "Quit");
     }

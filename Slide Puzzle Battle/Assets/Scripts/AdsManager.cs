@@ -24,7 +24,9 @@ public class AdsManager : Singleton<AdsManager>
 
     private void Start()
     {
-        banner = new GoogleAdsBanner.Builder(bannerId, AdSize.SmartBanner)
+        AdSize bannerSize = new AdSize(AdSize.FullWidth, 50);
+
+        banner = new GoogleAdsBanner.Builder(bannerId, bannerSize)
                .SetTestMode(true)
                .Build();
         banner.Request();
