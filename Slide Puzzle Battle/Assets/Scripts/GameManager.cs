@@ -100,21 +100,37 @@ public class GameManager : Singleton<GameManager>
 
         int tileCount = _boardSize * _boardSize;
 
+        int monsterCount = stage.monsterCount;
+        int swordCount = monsterCount * 2;
+
         for (int i = 0; i < tileCount; i++)
         {
-            var types = System.Enum.GetValues(typeof(TileData.TileType));
-            var type = (TileData.TileType)Random.Range(0, types.Length - 1);
+            var type = TileData.TileType.Normal;
             var coord = IndexToCoord(i);
             var pos = CoordToPosition(coord);
 
             if(coord.x == 0 || coord.y == 0 || coord.x == _boardSize-1 || coord.y == _boardSize-1 )
             {
                 //칼생성
-                
+                if(swordCount > 0)
+                {
+                    if (Random.Range(0f, 2f) < 1f)
+                    {
+                        type = TileData.TileType.Attack;
+                        --swordCount;
+                    }
+                }
             }
-            else
+            else 
             {
-
+                if (monsterCount > 0)
+                {
+                    if (Random.Range(0f, 2f) < 1f)
+                    {
+                        type = TileData.TileType.Monster;
+                        --monsterCount;
+                    }
+                }
             }
 
             //tiles.Add(factory.Create(type, 0, pos, tileSize, i));
