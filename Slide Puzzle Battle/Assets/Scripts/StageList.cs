@@ -13,7 +13,7 @@ public class StageList : ListView<StageListItem, StageData>
         {
             int size = Random.Range(0, 5) + 4;
 
-            var data = new StageData(size, 0, 0, 1);
+            var data = new StageData(size, 0, 0, 2);
             items.Add(data);
         }
 
