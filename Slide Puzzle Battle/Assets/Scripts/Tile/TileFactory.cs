@@ -5,10 +5,6 @@ using com.PlugStudio;
 
 public class TileFactory
 {
-    public enum TileType
-    {
-        Normal, Monster, Attack, Bomb, Arrow
-    }
 
     private Transform board;
     private GameObject tilePrefab;
@@ -19,31 +15,40 @@ public class TileFactory
         tilePrefab = _prefab;
     }
 
-    public Tile Create(TileType _type, float _rate)
+    public Tile Create(TileData.TileType _type, float _rate, Vector2 _position, float _size, int _index)
     {
-        TileData data = new NormalTile(null, 0);
-        Sprite icon = null;
+        TileData data = null;
+        Sprite icon;
 
         switch (_type)
         {
-            case TileType.Monster:
+            case TileData.TileType.Blank:
+                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Blank");
+                data = new NormalTile(_type, icon, _rate);
+                break;
+
+            case TileData.TileType.Normal:
+                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Normal");
+                data = new NormalTile(_type, icon, _rate);
+                break;
+            case TileData.TileType.Monster:
                 icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Monster");
-                data = new MonsterTile(icon, _rate);
+                data = new MonsterTile(_type, icon, _rate);
                 break;
 
-            case TileType.Attack:
+            case TileData.TileType.Attack:
                 icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Attack");
-                data = new AttackTile(icon, _rate);
+                data = new AttackTile(_type, icon, _rate);
                 break;
 
-            case TileType.Bomb:
+            case TileData.TileType.Bomb:
                 icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Boom");
-                data = new BoomTile(icon, _rate);
+                data = new BoomTile(_type, icon, _rate);
                 break;
 
-            case TileType.Arrow:
+            case TileData.TileType.Arrow:
                 icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Arrow");
-                data = new ArrowTile(icon, _rate);
+                data = new ArrowTile(_type, icon, _rate);
                 break;
 
         }
@@ -56,7 +61,7 @@ public class TileFactory
             newTile.AddComponent<Tile>();
         }
 
-        tile.InitData(data);
+        tile.InitData(data, _position, _size, _index);
 
         return tile;
     }

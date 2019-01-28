@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class AttackTile : TileData
 {
-    public AttackTile(Sprite _icon, float _rate)
-        : base(_icon, _rate)
+    public AttackTile(TileType _type, Sprite _icon, float _rate)
+        : base(_type, _icon, _rate)
     {
         rate = 0;
     }

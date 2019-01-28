@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class NormalTile : TileData
 {
-    public NormalTile(Sprite _icon, float _rate)
-        : base(_icon, _rate)
+    public NormalTile(TileType _type, Sprite _icon, float _rate)
+        : base(_type, _icon, _rate)
     {
         _icon = null;
         _rate = 0;

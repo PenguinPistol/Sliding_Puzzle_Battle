@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BoomTile : TileData
 {
-    public BoomTile(Sprite _icon, float _rate)
-        : base(_icon, _rate)
+    public BoomTile(TileType _type, Sprite _icon, float _rate)
+        : base(_type, _icon, _rate)
     {
         rate = 0;
     }

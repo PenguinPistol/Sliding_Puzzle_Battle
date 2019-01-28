@@ -4,12 +4,18 @@ using UnityEngine;
 
 public abstract class TileData
 {
+    public enum TileType
+    {
+        Normal, Monster, Attack, Bomb, Arrow, Blank
+    }
+
     public Sprite icon;
     public float rate;
-    public Vector2 position;
+    public TileType type;
 
-    public TileData(Sprite _icon, float _rate)
+    public TileData(TileType _type, Sprite _icon, float _rate)
     {
+        type = _type;
         icon = _icon;
         rate = _rate;
     }

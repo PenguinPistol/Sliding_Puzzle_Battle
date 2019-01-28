@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MonsterTile : TileData
 {
-    public MonsterTile(Sprite _icon, float _rate)
-        : base(_icon, _rate)
+    public MonsterTile(TileType _type, Sprite _icon, float _rate)
+        : base(_type, _icon, _rate)
     {
     }
 

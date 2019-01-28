@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class ArrowTile : TileData
 {
-    public ArrowTile(Sprite _icon, float _rate)
-        : base(_icon, _rate)
+    public ArrowTile(TileType _type, Sprite _icon, float _rate)
+        : base(_type, _icon, _rate)
     {
         rate = 0;
     }

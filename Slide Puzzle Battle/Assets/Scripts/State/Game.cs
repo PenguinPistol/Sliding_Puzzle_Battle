@@ -1,10 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using com.PlugStudio.Patterns;
+using com.PlugStudio.Input;
 
 public class Game : State
 {
+    private Ray2D ray;
+    private RaycastHit2D hit;
+
     public override void Init(params object[] datas)
     {
         DialogData quitGame = new DialogData
@@ -18,6 +24,8 @@ public class Game : State
             }).Build();
 
         DialogManager.Instance.AddDialog(quitGame, "QuitGame");
+
+        InputController.Instance.AddObservable(this);
     }
 
     public override void Execute()
@@ -30,5 +38,25 @@ public class Game : State
 
     public override void Exit()
     {
+        GameManager.Instance.DeleteBoard();
+    }
+
+    public override void TouchBegan(Vector3 _touchPosition, int _index)
+    {
+        if(GameManager.Instance.IsChanged)
+        {
+            return;
+        }
+
+        ray = new Ray2D(_touchPosition, Vector3.forward);
+        hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+        if (hit.collider != null)
+        {
+            if (hit.collider.tag.Equals("Tile"))
+            {
+                GameManager.Instance.ChangeTile(hit.transform.GetComponent<Tile>());
+            }
+        }
     }
 }
