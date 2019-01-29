@@ -13,6 +13,8 @@ public class Game : State
 
     public override void Init(params object[] datas)
     {
+        int index = (int)datas[0];
+
         DialogData quitGame = new DialogData
             .Builder("진행중인 게임이 저장되지 않습니다.\n종료 하시겠습니까?")
             .SetPositiveText("나가기")
@@ -24,6 +26,8 @@ public class Game : State
             }).Build();
 
         DialogManager.Instance.AddDialog(quitGame, "QuitGame");
+
+        GameManager.Instance.StartGame(Database.Instance.StageData[index]);
 
         InputController.Instance.AddObservable(this);
     }
@@ -46,17 +50,6 @@ public class Game : State
         if(GameManager.Instance.IsChanged)
         {
             return;
-        }
-
-        ray = new Ray2D(_touchPosition, Vector3.forward);
-        hit = Physics2D.Raycast(ray.origin, ray.direction);
-
-        if (hit.collider != null)
-        {
-            if (hit.collider.tag.Equals("Tile"))
-            {
-                GameManager.Instance.ChangeTile(hit.transform.GetComponent<Tile>());
-            }
         }
     }
 }

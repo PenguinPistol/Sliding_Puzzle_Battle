@@ -52,43 +52,17 @@ namespace com.PlugStudio.Patterns
             }
         }
 
-        public void ChangeState(string _name)
+        public void ChangeState(string _name, params object[] _datas)
         {
-            StartCoroutine(Change(_name));
+            StartCoroutine(Change(_name, _datas));
         }
 
-        public void ChangeState(string _name, params object[] datas)
+        public void ChangeBeforeState(params object[] _datas)
         {
-            beforeStateName = currentStateName;
-            if (currentState != null)
-            {
-                currentState.canvas.SetActive(false);
-                currentState.Exit();
-            }
-            currentState = stateDictionary[_name];
-
-            if (currentState == null)
-            {
-                Debug.Log(_name + " State is Not Found");
-                currentState = stateDictionary[beforeStateName];
-                beforeStateName = "";
-            }
-
-            currentState.canvas.SetActive(true);
-            currentState.Init(datas);
-            currentStateName = currentState.GetType().Name;
+            StartCoroutine(ChangeBefore(_datas));
         }
 
-        public void ChangeBeforeState(params object[] datas)
-        {
-            changeAnimation.Play(STATE_CLOSE_ANIMATION, -1, 0f);
-
-            Debug.Log("" + changeAnimation.GetCurrentAnimatorStateInfo(0).normalizedTime);
-
-            StartCoroutine(ChangeBefore());
-        }
-
-        private IEnumerator Change(string _name)
+        private IEnumerator Change(string _name, params object[] _datas)
         {
             float time = 0f;
 
@@ -117,13 +91,22 @@ namespace com.PlugStudio.Patterns
                 beforeStateName = "";
             }
 
-            changeAnimation.Play(STATE_CHANGE_ANIMATION);
             currentState.canvas.SetActive(true);
-            currentState.Init();
+
+            time = 0f;
+            changeAnimation.Play(STATE_CHANGE_ANIMATION);
             currentStateName = currentState.GetType().Name;
+
+            while (time < changeAnimation.GetCurrentAnimatorStateInfo(0).length)
+            {
+                time += Time.deltaTime;
+                yield return null;
+            }
+
+            currentState.Init(_datas);
         }
 
-        private IEnumerator ChangeBefore()
+        private IEnumerator ChangeBefore(params object[] datas)
         {
             float time = 0f;
 
@@ -150,10 +133,18 @@ namespace com.PlugStudio.Patterns
                 beforeStateName = "";
             }
 
-            changeAnimation.Play(STATE_CHANGE_ANIMATION);
             currentState.canvas.SetActive(true);
-            currentState.Init();
             currentStateName = currentState.GetType().Name;
+
+            time = 0f;
+            changeAnimation.Play(STATE_CHANGE_ANIMATION);
+
+            while (time < changeAnimation.GetCurrentAnimatorStateInfo(0).length)
+            {
+                time += Time.deltaTime;
+                yield return null;
+            }
+            currentState.Init();
         }
     }
 }

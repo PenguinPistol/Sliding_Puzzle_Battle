@@ -27,7 +27,10 @@ public class StageListItem : MonoBehaviour
         index = _index;
         data = _data;
 
-        icon.sprite = icons[(int)data.state];
+        if(icon != null)
+        {
+            icon.sprite = icons[(int)data.state];
+        }
         title.text = _title;
     }
 }

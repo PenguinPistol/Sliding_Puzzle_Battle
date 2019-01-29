@@ -1,26 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class Tile : MonoBehaviour
 {
     private TileData data;
     private bool isMoved;
 
-    public SpriteRenderer sprite;
-    public TextMeshPro rate;
-    public int index;
+    public Image    sprite;
+    public Text     rate;
+    public int      index;
 
     public TileData.TileType Type
     {
         get { return data.type; }
     }
 
+    public RectTransform rectTransform;
+
     public void InitData(TileData _data, Vector2 _position, float _size, int _index)
     {
         data = _data;
-        sprite = GetComponent<SpriteRenderer>();
+        sprite = GetComponent<Image>();
+        rectTransform = GetComponent<RectTransform>();
+
 
         if (data.icon != null)
         {
@@ -34,8 +38,9 @@ public class Tile : MonoBehaviour
             rate.text = string.Format("{0}", data.rate);
         }
 
-        transform.localScale = new Vector3(_size, _size);
-        transform.localPosition = _position;
+        rectTransform.sizeDelta = new Vector3(_size, _size);
+        StartCoroutine(CreateAnimation(_position));
+        //rectTransform.localPosition = _position;
 
         index = _index;
         isMoved = false;
@@ -52,13 +57,31 @@ public class Tile : MonoBehaviour
 
     private IEnumerator MoveTarget(Vector3 _target)
     {
-        while(Vector3.Distance(transform.position, _target) > 0.1f)
+        while(Vector3.Distance(rectTransform.localPosition, _target) > 0.1f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, _target, Time.deltaTime * 20);
+            rectTransform.localPosition = Vector3.MoveTowards(rectTransform.localPosition, _target, 20);
             yield return null;
         }
 
-        transform.position = _target;
+        rectTransform.localPosition = _target;
         isMoved = false;
+    }
+
+    private IEnumerator CreateAnimation(Vector3 _position)
+    {
+        rectTransform.localPosition = _position + (Vector3.up * 400f);
+
+        while (Vector3.Distance(rectTransform.localPosition, _position) > 0.1f)
+        {
+            rectTransform.localPosition = Vector3.MoveTowards(rectTransform.localPosition, _position, 100);
+            yield return null;
+        }
+
+        rectTransform.localPosition = _position;
+
+        GetComponent<Button>().onClick.AddListener(() => {
+            Debug.Log("index : " + index);
+            GameManager.Instance.MoveTile(index);
+        });
     }
 }

@@ -52,9 +52,7 @@ public class GameManager : Singleton<GameManager>
             //boardSize = Database.Instance....
             // 1000 / boardSize - 20;
 
-            CreateBoard(stage.boardSize);
-
-            StartCoroutine(Game());
+            StartCoroutine(CreateBoard(stage.boardSize));
         }
     }
 
@@ -85,18 +83,16 @@ public class GameManager : Singleton<GameManager>
         DeleteBoard();
     }
 
-    private const float BASE_TILE_SIZE = 200f;
-
     private float tileSize;
     private float startX;
     private float startY;
 
-    public void CreateBoard(int _boardSize)
+    public IEnumerator CreateBoard(int _boardSize)
     {
         tiles = new List<Tile>();
-        tileSize = (boardWidth / _boardSize - spacing) / BASE_TILE_SIZE;
-        startX = -tileSize * (_boardSize - 1);
-        startY = tileSize * (_boardSize - 1);
+        tileSize = boardWidth / _boardSize - spacing;
+        startX = -(tileSize / 2f) * (_boardSize - 1);
+        startY = -startX;
 
         int tileCount = _boardSize * _boardSize;
 
@@ -109,6 +105,7 @@ public class GameManager : Singleton<GameManager>
             var coord = IndexToCoord(i);
             var pos = CoordToPosition(coord);
 
+            // 가장자리에 칼 / 안쪽에 몬스터
             if(coord.x == 0 || coord.y == 0 || coord.x == _boardSize-1 || coord.y == _boardSize-1 )
             {
                 //칼생성
@@ -145,8 +142,12 @@ public class GameManager : Singleton<GameManager>
                 tiles.Add(factory.Create(type, 0, pos, tileSize, i));
             }
 
+            yield return new WaitForSeconds(0.05f);
         }
+
         blankIndex = tiles.Count - 1;
+
+        StartCoroutine(Game());
     }
 
     ///////////////////////////////////////////////////////////////
@@ -165,10 +166,12 @@ public class GameManager : Singleton<GameManager>
         tiles.Clear();
     }
 
+#region Tile Movement
+
     private bool isChanged = false;
     public bool IsChanged { get { return isChanged; } }
 
-    public void ChangeTile(Tile _selectTile)
+    public void MoveTile(Tile _selectTile)
     {
         if(_selectTile == null || isChanged)
         {
@@ -179,62 +182,90 @@ public class GameManager : Singleton<GameManager>
         var blankCoord = IndexToCoord(blankIndex);
         var selectCoord = IndexToCoord(selectIndex);
 
-        if(blankCoord.x == selectCoord.x)
+        if (blankCoord.x == selectCoord.x)
         {
-            isChanged = true;
-            // 세로 이동
-
-            int count = (int)Mathf.Abs(blankCoord.y - selectCoord.y);
-
-            for (int i = count - 1; i >= 0; i--)
-            {
-                int index = selectIndex - stage.boardSize * i;
-                int target = selectIndex - stage.boardSize * (i + 1);
-
-                if (blankCoord.y > selectCoord.y)
-                {
-                    index = selectIndex + stage.boardSize * i;
-                    target = selectIndex + stage.boardSize * (i + 1);
-                }
-
-                var targetPosition = CoordToPosition(IndexToCoord(target));
-                var tile = tiles.Find(item => item.index == index);
-
-                tile.index = target;
-                tile.MovePosition(targetPosition);
-            }
-
-            blankIndex = selectIndex;
-            isChanged = false;
+            MoveVertical(selectIndex, selectCoord, blankCoord);
         }
         else if(blankCoord.y == selectCoord.y)
         {
-            // 가로이동
-            isChanged = true;
+            MoveHorizontal(selectIndex, selectCoord, blankCoord);
+        }
+    }
 
-            int count = (int)Mathf.Abs(blankCoord.x - selectCoord.x);
+    public void MoveTile(int _selectIndex)
+    {
+        if (isChanged)
+        {
+            return;
+        }
 
-            for (int i = count - 1; i >= 0; i--)
+        var blankCoord = IndexToCoord(blankIndex);
+        var selectCoord = IndexToCoord(_selectIndex);
+
+        if (blankCoord.x == selectCoord.x)
+        {
+            MoveVertical(_selectIndex, selectCoord, blankCoord);
+        }
+        else if (blankCoord.y == selectCoord.y)
+        {
+            MoveHorizontal(_selectIndex, selectCoord, blankCoord);
+        }
+    }
+
+    private void MoveVertical(int _selectIndex, Vector2 _selectCoord, Vector2 _blankCoord)
+    {
+        isChanged = true;
+
+        int count = (int)Mathf.Abs(_blankCoord.y - _selectCoord.y);
+
+        for (int i = count - 1; i >= 0; i--)
+        {
+            int index = _selectIndex - stage.boardSize * i;
+            int target = _selectIndex - stage.boardSize * (i + 1);
+
+            if (_blankCoord.y > _selectCoord.y)
             {
-                int index = selectIndex - i;
-                int target = selectIndex - (i + 1);
-
-                if (blankCoord.x > selectCoord.x)
-                {
-                    index = selectIndex + i;
-                    target = selectIndex + (i + 1);
-                }
-
-                var targetPosition = CoordToPosition(IndexToCoord(target));
-                var tile = tiles.Find(item => item.index == index);
-
-                tile.index = target;
-                tile.MovePosition(targetPosition);
+                index = _selectIndex + stage.boardSize * i;
+                target = _selectIndex + stage.boardSize * (i + 1);
             }
 
-            blankIndex = selectIndex;
-            isChanged = false;
+            var targetPosition = CoordToPosition(IndexToCoord(target));
+            var tile = tiles.Find(item => item.index == index);
+
+            tile.index = target;
+            tile.MovePosition(targetPosition);
         }
+
+        blankIndex = _selectIndex;
+        isChanged = false;
+    }
+
+    private void MoveHorizontal(int _selectIndex, Vector2 _selectCoord, Vector2 _blankCoord)
+    {
+        isChanged = true;
+
+        int count = (int)Mathf.Abs(_blankCoord.x - _selectCoord.x);
+
+        for (int i = count - 1; i >= 0; i--)
+        {
+            int index = _selectIndex - i;
+            int targetIndex = _selectIndex - (i + 1);
+
+            if (_blankCoord.x > _selectCoord.x)
+            {
+                index = _selectIndex + i;
+                targetIndex = _selectIndex + (i + 1);
+            }
+
+            var targetPosition = CoordToPosition(IndexToCoord(targetIndex));
+            var tile = tiles.Find(item => item.index == index);
+
+            tile.index = targetIndex;
+            tile.MovePosition(targetPosition);
+        }
+
+        blankIndex = _selectIndex;
+        isChanged = false;
     }
 
     private Vector2 IndexToCoord(int _index)
@@ -244,6 +275,18 @@ public class GameManager : Singleton<GameManager>
 
         return new Vector2(x, y);
     }
+
+    private int CoordToIndex(Vector2 _coord)
+    {
+        return (int)(_coord.y * stage.boardSize + _coord.x);
+    }
+
+    private Vector2 CoordToPosition(Vector2 _coord)
+    {
+        return new Vector2(startX + tileSize * _coord.x, startY - tileSize * _coord.y);
+    }
+
+#endregion
 
     public void Attack()
     {
@@ -303,17 +346,6 @@ public class GameManager : Singleton<GameManager>
             }
         }
     }
-
-    private int CoordToIndex(Vector2 _coord)
-    {
-        return (int)(_coord.y * stage.boardSize + _coord.x);
-    }
-
-    private Vector2 CoordToPosition(Vector2 _coord)
-    {
-        return new Vector2(startX + tileSize * _coord.x * 2, startY - tileSize * _coord.y * 2);
-    }
-
 
     private IEnumerator Game()
     {

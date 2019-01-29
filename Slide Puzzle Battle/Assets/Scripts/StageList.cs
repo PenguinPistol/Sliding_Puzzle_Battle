@@ -7,17 +7,9 @@ public class StageList : ListView<StageListItem, StageData>
 {
     private void Start()
     {
-        List<StageData> items = new List<StageData>();
+        Database.Instance.ReadStageData();
 
-        for (int i = 0; i < 10; i++)
-        {
-            int size = Random.Range(0, 5) + 4;
-
-            var data = new StageData(size, 0, 0, 2);
-            items.Add(data);
-        }
-
-        Init(items);
+        Init(Database.Instance.StageData);
     }
 
     public override void Init(List<StageData> _items)
@@ -52,7 +44,6 @@ public class StageList : ListView<StageListItem, StageData>
 
     public override void SelectItem(int _index)
     {
-        StateController.Instance.ChangeState("Game");
-        GameManager.Instance.StartGame(items[_index].Data);
+        StateController.Instance.ChangeState("Game", _index);
     }
 }
