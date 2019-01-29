@@ -1042,7 +1042,7 @@ SpriteRenderer:
   m_Size: {x: 10.25, y: 10.25}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &618207200
@@ -3077,7 +3077,7 @@ SpriteRenderer:
   m_Size: {x: 10.25, y: 10.25}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1797311880
@@ -3262,6 +3262,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5014413281527348596, guid: fcd35db496169c743bd44be3d0a71975,
+        type: 3}
+      propertyPath: m_Text
+      value: SETTING
+      objectReference: {fileID: 0}
+    - target: {fileID: 5014413281527348596, guid: fcd35db496169c743bd44be3d0a71975,
+        type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 5014413281527348596, guid: fcd35db496169c743bd44be3d0a71975,
+        type: 3}
+      propertyPath: m_FontData.m_MaxSize
+      value: 80
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fcd35db496169c743bd44be3d0a71975, type: 3}
