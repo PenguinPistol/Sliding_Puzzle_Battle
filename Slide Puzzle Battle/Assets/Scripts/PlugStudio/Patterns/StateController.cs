@@ -62,6 +62,11 @@ namespace com.PlugStudio.Patterns
             StartCoroutine(ChangeBefore(_datas));
         }
 
+        public void RestartState(params object[] _datas)
+        {
+            currentState.Init(_datas);
+        }
+
         private IEnumerator Change(string _name, params object[] _datas)
         {
             float time = 0f;

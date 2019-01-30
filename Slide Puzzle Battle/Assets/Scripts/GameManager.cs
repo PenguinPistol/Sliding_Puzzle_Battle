@@ -27,6 +27,12 @@ public class GameManager : Singleton<GameManager>
     private StageData stage;
     // 타일 리스트
     private List<Tile> tiles;
+    // 타일 사이즈
+    private float tileSize;
+    // 시작 위치 X 좌표값
+    private float startX;
+    // 시작 위치 Y 좌표값
+    private float startY;
 
     // 보드 
     public Transform board;
@@ -83,9 +89,6 @@ public class GameManager : Singleton<GameManager>
         DeleteBoard();
     }
 
-    private float tileSize;
-    private float startX;
-    private float startY;
 
     public IEnumerator CreateBoard(int _boardSize)
     {
@@ -95,7 +98,6 @@ public class GameManager : Singleton<GameManager>
         startY = -startX;
 
         int tileCount = _boardSize * _boardSize;
-
         int monsterCount = stage.monsterCount;
         int swordCount = monsterCount * 2;
 
@@ -286,9 +288,16 @@ public class GameManager : Singleton<GameManager>
         return new Vector2(startX + tileSize * _coord.x, startY - tileSize * _coord.y);
     }
 
-#endregion
+    #endregion
 
-    public void Attack()
+#region Tile Attack
+
+    public void StartAttack()
+    {
+        StartCoroutine(Attack());
+    }
+
+    public IEnumerator Attack()
     {
         for (int i = 0; i < tiles.Count - 1; i++)
         {
@@ -342,10 +351,41 @@ public class GameManager : Singleton<GameManager>
                 if(tile.Type.Equals(TileData.TileType.Monster))
                 {
                     Debug.LogFormat("{0} 타일이 {1} 타일 공격", coord, attackRange[j]);
+
+                    // 0,0 dot 1.0
+                    Vector2 a = attackRange[j] - coord;
+                    Debug.Log("" + a);
+                    int b = (int)(a.x * 10 + a.y);
+
+                    float time = 0f;
+
+                    switch(b)
+                    {
+                        case 10:
+                            tiles[i].animator.Play("Tile_Attack_Right");
+                            break;
+                        case -10:
+                            tiles[i].animator.Play("Tile_Attack_Left");
+                            break;
+                        case 1:
+                            tiles[i].animator.Play("Tile_Attack_Down");
+                            break;
+                        case -1:
+                            tiles[i].animator.Play("Tile_Attack_Up");
+                            break;
+                    }
+
+                    while (time < tiles[i].animator.GetCurrentAnimatorStateInfo(0).length)
+                    {
+                        time += Time.deltaTime;
+                        yield return null;
+                    }
                 }
             }
         }
     }
+
+#endregion
 
     private IEnumerator Game()
     {

@@ -19,7 +19,8 @@ public class Database : Singleton<Database>
         {
             int size = Random.Range(0, 5) + 4;
 
-            var data = new StageData(size, 0, 0, 2);
+            //var data = new StageData(size, 0, 0, 2);
+            var data = new StageData(4, 0, 0, 2);
             stageData.Add(data);
         }
     }
