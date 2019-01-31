@@ -452,6 +452,7 @@ GameObject:
   - component: {fileID: 7394073183055985779}
   - component: {fileID: 7394073183055985780}
   - component: {fileID: 5167540385065767321}
+  - component: {fileID: 1314225144350325985}
   m_Layer: 5
   m_Name: Quit
   m_TagString: Untagged
@@ -534,6 +535,25 @@ MonoBehaviour:
   positiveButton: {fileID: 7394073182390489357}
   negativeButton: {fileID: 7394073183096158528}
   neatralButton: {fileID: 0}
+--- !u!95 &1314225144350325985
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7394073183055985783}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b9dff01b80f490a4ba405742a6e1b265, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &7394073183096158530
 GameObject:
   m_ObjectHideFlags: 0

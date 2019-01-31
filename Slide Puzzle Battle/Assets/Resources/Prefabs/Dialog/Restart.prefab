@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 7392838391676987581}
   - component: {fileID: 7392838391676987582}
   - component: {fileID: 1447344493612949652}
+  - component: {fileID: 1518725086601969305}
   m_Layer: 5
   m_Name: Restart
   m_TagString: Untagged
@@ -366,6 +367,25 @@ MonoBehaviour:
   positiveButton: {fileID: 7392838392910267252}
   negativeButton: {fileID: 7392838391242831429}
   neatralButton: {fileID: 0}
+--- !u!95 &1518725086601969305
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7392838391676987577}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 03160b71ea1dd8643a4d65a91b6e4357, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &7392838392241492049
 GameObject:
   m_ObjectHideFlags: 0
