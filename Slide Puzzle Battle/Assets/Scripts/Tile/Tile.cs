@@ -11,6 +11,7 @@ public class Tile : MonoBehaviour
     public Image    sprite;
     public Text     rate;
     public int      index;
+    public Animator animator;
 
     public TileData.TileType Type
     {
@@ -22,9 +23,8 @@ public class Tile : MonoBehaviour
     public void InitData(TileData _data, Vector2 _position, float _size, int _index)
     {
         data = _data;
-        sprite = GetComponent<Image>();
         rectTransform = GetComponent<RectTransform>();
-
+        animator = GetComponent<Animator>();
 
         if (data.icon != null)
         {

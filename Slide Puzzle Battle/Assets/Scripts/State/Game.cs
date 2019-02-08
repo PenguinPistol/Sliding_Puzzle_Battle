@@ -11,23 +11,13 @@ public class Game : State
     private Ray2D ray;
     private RaycastHit2D hit;
 
+    private StageData stage;
+
     public override void Init(params object[] datas)
     {
-        int index = (int)datas[0];
+        stage = Database.Instance.StageData[(int)datas[0]];
 
-        DialogData quitGame = new DialogData
-            .Builder("진행중인 게임이 저장되지 않습니다.\n종료 하시겠습니까?")
-            .SetPositiveText("나가기")
-            .SetNegativeText("취소")
-            .SetPositiveAction(() =>
-            {
-                GameManager.Instance.FinishGame();
-                StateController.Instance.ChangeBeforeState();
-            }).Build();
-
-        DialogManager.Instance.AddDialog(quitGame, "QuitGame");
-
-        GameManager.Instance.StartGame(Database.Instance.StageData[index]);
+        GameManager.Instance.StartGame(stage);
 
         InputController.Instance.AddObservable(this);
     }
@@ -36,7 +26,7 @@ public class Game : State
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            DialogManager.Instance.ShowDialog("QuitGame");
+            DialogManager.Instance.ShowDialog("LeaveStage");
         }
     }
 
