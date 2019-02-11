@@ -7,12 +7,10 @@ public class StageListItem : MonoBehaviour
 {
     private StageData data;
     private int index;
+    private Animator animator;
 
-    public Image icon;
-    public Text title;
-
-    public Sprite[] icons;
-
+    public List<Text> titleTexts;
+    
     public StageData Data
     {
         get { return data; }
@@ -26,11 +24,23 @@ public class StageListItem : MonoBehaviour
     {
         index = _index;
         data = _data;
+        animator = GetComponent<Animator>();
 
-        if(icon != null)
+        switch(data.state)
         {
-            icon.sprite = icons[(int)data.state];
+            case StageData.StageState.Lock:
+                break;
+            case StageData.StageState.Unlock:
+                animator.Play("ListItem_Unlock_Idle");
+                break;
+            case StageData.StageState.Clear:
+                animator.Play("ListItem_Clear_Idle");
+                break;
         }
-        title.text = _title;
+
+        for (int i = 0; i < titleTexts.Count; i++)
+        {
+            titleTexts[i].text = _title;
+        }
     }
 }

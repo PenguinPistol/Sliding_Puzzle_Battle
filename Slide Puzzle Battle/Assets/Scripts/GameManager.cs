@@ -33,6 +33,8 @@ public class GameManager : Singleton<GameManager>
     private float startX;
     // 시작 위치 Y 좌표값
     private float startY;
+    // 공격 진행중
+    private bool isAttacked;
 
     // 보드 
     public Transform board;
@@ -44,7 +46,12 @@ public class GameManager : Singleton<GameManager>
     public float spacing;
     // 실제 타일놓는 보드 크기
     public float boardWidth;
-    
+
+    public int BoardSize { get { return stage.boardSize; } }
+    public bool IsAttacked { get { return isAttacked; } }
+
+#region Game Controll
+
     public void StartGame(StageData _stage)
     {
         stage = _stage;
@@ -84,11 +91,14 @@ public class GameManager : Singleton<GameManager>
 
     public void FinishGame()
     {
+        state = PlayState.Ready;
         isGameover = true;
 
         DeleteBoard();
     }
+    #endregion
 
+#region Board Controll
 
     public IEnumerator CreateBoard(int _boardSize)
     {
@@ -168,32 +178,13 @@ public class GameManager : Singleton<GameManager>
         tiles.Clear();
     }
 
+#endregion
+
 #region Tile Movement
 
     private bool isChanged = false;
     public bool IsChanged { get { return isChanged; } }
-
-    public void MoveTile(Tile _selectTile)
-    {
-        if(_selectTile == null || isChanged)
-        {
-            return;
-        }
-
-        int selectIndex = _selectTile.index;
-        var blankCoord = IndexToCoord(blankIndex);
-        var selectCoord = IndexToCoord(selectIndex);
-
-        if (blankCoord.x == selectCoord.x)
-        {
-            MoveVertical(selectIndex, selectCoord, blankCoord);
-        }
-        else if(blankCoord.y == selectCoord.y)
-        {
-            MoveHorizontal(selectIndex, selectCoord, blankCoord);
-        }
-    }
-
+    
     public void MoveTile(int _selectIndex)
     {
         if (isChanged)
@@ -212,6 +203,15 @@ public class GameManager : Singleton<GameManager>
         {
             MoveHorizontal(_selectIndex, selectCoord, blankCoord);
         }
+
+        //tiles.Sort(delegate (Tile a, Tile b)
+        //{
+        //    if (a == null || b == null) return 0;
+
+        //    if (a.index > b.index) return 1;
+        //    else if (a.index < b.index) return -1;
+        //    else return 0;
+        //});
     }
 
     private void MoveVertical(int _selectIndex, Vector2 _selectCoord, Vector2 _blankCoord)
@@ -270,7 +270,7 @@ public class GameManager : Singleton<GameManager>
         isChanged = false;
     }
 
-    private Vector2 IndexToCoord(int _index)
+    public Vector2 IndexToCoord(int _index)
     {
         int x = _index == 0 ? 0 : _index % stage.boardSize;
         int y = _index == 0 ? 0 : _index / stage.boardSize;
@@ -278,12 +278,12 @@ public class GameManager : Singleton<GameManager>
         return new Vector2(x, y);
     }
 
-    private int CoordToIndex(Vector2 _coord)
+    public int CoordToIndex(Vector2 _coord)
     {
         return (int)(_coord.y * stage.boardSize + _coord.x);
     }
 
-    private Vector2 CoordToPosition(Vector2 _coord)
+    public Vector2 CoordToPosition(Vector2 _coord)
     {
         return new Vector2(startX + tileSize * _coord.x, startY - tileSize * _coord.y);
     }
@@ -294,95 +294,35 @@ public class GameManager : Singleton<GameManager>
 
     public void StartAttack()
     {
+        if (isAttacked)
+        {
+            return;
+        }
+
         StartCoroutine(Attack());
     }
 
     public IEnumerator Attack()
     {
+        isAttacked = true;
+
         for (int i = 0; i < tiles.Count - 1; i++)
         {
-            if(tiles[i].Type.Equals(TileData.TileType.Normal) || tiles[i].Type.Equals(TileData.TileType.Monster))
+            if(tiles[i].Type.Equals(TileData.TileType.Normal)
+                || tiles[i].Type.Equals(TileData.TileType.Monster))
             {
                 continue;
             }
 
-            var coord = IndexToCoord(tiles[i].index);
+            tiles[i].Attack();
 
-            Vector2[] attackRange = null;
-
-            switch(tiles[i].Type)
+            while(tiles[i].IsAttack)
             {
-                case TileData.TileType.Attack:
-                    attackRange = new Vector2[]{
-                        new Vector2(coord.x-1, coord.y)
-                        , new Vector2(coord.x+1, coord.y)
-                        , new Vector2(coord.x, coord.y-1)
-                        , new Vector2(coord.x, coord.y+1)
-                    };
-                    break;
-                case TileData.TileType.Arrow:
-                    attackRange = new Vector2[0];
-                    break;
-                case TileData.TileType.Bomb:
-                    attackRange = new Vector2[0];
-                    break;
-            }
-
-            for (int j = 0; j < attackRange.Length; j++)
-            {
-                if(attackRange[j].x < 0
-                    || attackRange[j].x >= stage.boardSize
-                    || attackRange[j].y < 0
-                    || attackRange[j].y >= stage.boardSize)
-                {
-                    continue;
-                }
-
-                int targetIndex = CoordToIndex(attackRange[j]);
-
-                // 공격할 타일이 빈타일이면 넘어감
-                if(targetIndex == blankIndex)
-                {
-                    continue;
-                }
-
-                var tile = tiles.Find(x => x.index == targetIndex);
-
-                if(tile.Type.Equals(TileData.TileType.Monster))
-                {
-                    Debug.LogFormat("{0} 타일이 {1} 타일 공격", coord, attackRange[j]);
-
-                    // 0,0 dot 1.0
-                    Vector2 a = attackRange[j] - coord;
-                    Debug.Log("" + a);
-                    int b = (int)(a.x * 10 + a.y);
-
-                    float time = 0f;
-
-                    switch(b)
-                    {
-                        case 10:
-                            tiles[i].animator.Play("Tile_Attack_Right");
-                            break;
-                        case -10:
-                            tiles[i].animator.Play("Tile_Attack_Left");
-                            break;
-                        case 1:
-                            tiles[i].animator.Play("Tile_Attack_Down");
-                            break;
-                        case -1:
-                            tiles[i].animator.Play("Tile_Attack_Up");
-                            break;
-                    }
-
-                    while (time < tiles[i].animator.GetCurrentAnimatorStateInfo(0).length)
-                    {
-                        time += Time.deltaTime;
-                        yield return null;
-                    }
-                }
+                yield return null;
             }
         }
+
+        isAttacked = false;
     }
 
 #endregion
@@ -424,5 +364,52 @@ public class GameManager : Singleton<GameManager>
         }
 
         state = PlayState.Ready;
+    }
+
+
+    public List<Tile> GetRangeTiles(int _index)
+    {
+        var result = new List<Tile>();
+
+        Tile tile = tiles.Find(x => x.index == _index);
+
+        if(tile == null)
+        {
+            return result;
+        }
+
+        var range = tile.AttackRange;
+
+        for (int i = 0; i < range.Length; i++)
+        {
+            var coord = IndexToCoord(_index) + range[i];
+
+            if (coord.x < 0
+                    || coord.x >= stage.boardSize
+                    || coord.y < 0
+                    || coord.y >= stage.boardSize)
+            {
+                continue;
+            }
+
+            var targetIndex = CoordToIndex(coord);
+
+            try
+            {
+                Tile findTile = tiles.Find(x => x.index == targetIndex);
+
+                if(findTile.Type.Equals(TileData.TileType.Monster)
+                    || findTile.Type.Equals(TileData.TileType.Normal))
+                {
+                    result.Add(findTile);
+                }
+            }
+            catch (System.NullReferenceException e)
+            {
+                com.PlugStudio.Utility.DebugX(e.Message);
+            }
+        }
+
+        return result;
     }
 }

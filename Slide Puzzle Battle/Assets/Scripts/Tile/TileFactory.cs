@@ -5,7 +5,6 @@ using com.PlugStudio;
 
 public class TileFactory
 {
-
     private Transform board;
     private GameObject tilePrefab;
 

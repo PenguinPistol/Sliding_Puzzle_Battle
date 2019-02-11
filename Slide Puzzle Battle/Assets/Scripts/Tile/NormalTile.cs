@@ -15,7 +15,7 @@ public class NormalTile : TileData
     {
     }
 
-    public override void Attack()
+    public override void Attack(Vector2 _position, Vector2 _direction)
     {
     }
 }

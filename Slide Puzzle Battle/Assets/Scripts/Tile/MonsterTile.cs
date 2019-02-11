@@ -9,7 +9,7 @@ public class MonsterTile : TileData
     {
     }
 
-    public override void Attack()
+    public override void Attack(Vector2 _position, Vector2 _direction)
     {
         // 공격버튼 눌렀을 때 처리
     }

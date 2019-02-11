@@ -429,7 +429,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 1
+  m_FlexibleWidth: 1.33
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &4187888603884933386
@@ -603,7 +603,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 1
+  m_FlexibleWidth: 1.33
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &5400127027175589641
@@ -836,7 +836,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 1.14
+  m_FlexibleWidth: 0
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &6977185948197531642
@@ -849,7 +849,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6977185948197531643}
   - component: {fileID: 6977185948197531646}
-  - component: {fileID: 6977185948197531641}
   - component: {fileID: 6593776966123174638}
   m_Layer: 5
   m_Name: Sword
@@ -887,35 +886,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6977185948197531642}
   m_CullTransparentMesh: 0
---- !u!114 &6977185948197531641
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6977185948197531642}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
 --- !u!114 &6593776966123174638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -933,7 +903,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 1.14
+  m_FlexibleWidth: 0
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &6977185948852082257
@@ -1291,7 +1261,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 1
+  m_FlexibleWidth: 1.33
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &8453391150393718481
@@ -1348,7 +1318,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 1.14
+  m_FlexibleWidth: 0
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &8761047054773025350
@@ -1484,12 +1454,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c3da9179207f1f40bbd0b1dd2565e8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 0}
-  title: {fileID: 0}
-  icons:
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  titleTexts:
+  - {fileID: 2167851573400514794}
+  - {fileID: 7336176941002728622}
+  - {fileID: 5083323970351518958}
 --- !u!95 &4115473092773012310
 Animator:
   serializedVersion: 3
