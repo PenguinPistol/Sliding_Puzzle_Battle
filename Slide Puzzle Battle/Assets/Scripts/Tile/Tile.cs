@@ -18,6 +18,16 @@ public class Tile : MonoBehaviour
         get { return data.type; }
     }
 
+    public bool IsAttack
+    {
+        get { return data.isAttack; }
+    }
+
+    public Vector2[] AttackRange
+    {
+        get { return data.attackRange; }
+    }
+
     public RectTransform rectTransform;
 
     public void InitData(TileData _data, Vector2 _position, float _size, int _index)
@@ -39,7 +49,7 @@ public class Tile : MonoBehaviour
         }
 
         rectTransform.sizeDelta = new Vector3(_size, _size);
-        StartCoroutine(CreateAnimation(_position));
+        StartCoroutine(StartCreateAnimation(_position));
         //rectTransform.localPosition = _position;
 
         index = _index;
@@ -55,6 +65,13 @@ public class Tile : MonoBehaviour
         }
     }
 
+    public void Attack()
+    {
+        var range = GameManager.Instance.GetRangeTiles(index);
+
+        StartCoroutine(data.AttackAnimation(animator, range));
+    }
+
     private IEnumerator MoveTarget(Vector3 _target)
     {
         while(Vector3.Distance(rectTransform.localPosition, _target) > 0.1f)
@@ -67,7 +84,7 @@ public class Tile : MonoBehaviour
         isMoved = false;
     }
 
-    private IEnumerator CreateAnimation(Vector3 _position)
+    private IEnumerator StartCreateAnimation(Vector3 _position)
     {
         rectTransform.localPosition = _position + (Vector3.up * 400f);
 
@@ -80,8 +97,13 @@ public class Tile : MonoBehaviour
         rectTransform.localPosition = _position;
 
         GetComponent<Button>().onClick.AddListener(() => {
-            Debug.Log("index : " + index);
+            if(GameManager.Instance.IsAttacked)
+            {
+                return;
+            }
+
             GameManager.Instance.MoveTile(index);
         });
     }
+
 }

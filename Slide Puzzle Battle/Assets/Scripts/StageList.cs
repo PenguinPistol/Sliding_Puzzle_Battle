@@ -9,7 +9,7 @@ public class StageList : ListView<StageListItem, StageData>
     {
         Database.Instance.ReadStageData();
 
-        Init(Database.Instance.StageData);
+        Init(Database.Instance.StageDatas);
     }
 
     public override void Init(List<StageData> _items)

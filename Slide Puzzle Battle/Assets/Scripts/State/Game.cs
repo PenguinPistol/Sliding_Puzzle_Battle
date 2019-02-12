@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using com.PlugStudio.Patterns;
-using com.PlugStudio.Input;
 
 public class Game : State
 {
@@ -15,7 +13,7 @@ public class Game : State
 
     public override void Init(params object[] datas)
     {
-        stage = Database.Instance.StageData[(int)datas[0]];
+        stage = Database.Instance.StageDatas[(int)datas[0]];
 
         GameManager.Instance.StartGame(stage);
 
@@ -32,7 +30,7 @@ public class Game : State
 
     public override void Exit()
     {
-        GameManager.Instance.DeleteBoard();
+        GameManager.Instance.FinishGame();
     }
 
     public override void TouchBegan(Vector3 _touchPosition, int _index)

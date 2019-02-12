@@ -85,5 +85,24 @@ namespace com.PlugStudio
             // Do Nothing;
 #endif
         }
+
+        [System.Diagnostics.Conditional("UnityEditor")]
+        public static void DebugX(string _message)
+        {
+            Debug.Log(_message);
+        }
+
+        public static void LookAt2D(Transform _origin, Transform _target)
+        {
+            Vector3 position = _origin.localPosition;
+            Vector3 target = _target.localPosition;
+
+            target.x = target.x - position.x;
+            target.y = target.y - position.y;
+
+            float angle = Mathf.Atan2(target.y, target.x) * Mathf.Rad2Deg - 90f;
+
+            _origin.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        }
     }
 }

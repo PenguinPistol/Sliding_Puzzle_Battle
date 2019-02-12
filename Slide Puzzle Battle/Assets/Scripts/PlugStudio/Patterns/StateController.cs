@@ -62,7 +62,7 @@ namespace com.PlugStudio.Patterns
             StartCoroutine(ChangeBefore(_datas));
         }
 
-        public void RestartState(params object[] _datas)
+        public void ReloadState(params object[] _datas)
         {
             currentState.Init(_datas);
         }

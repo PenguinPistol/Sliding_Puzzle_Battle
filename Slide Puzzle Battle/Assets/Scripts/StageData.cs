@@ -16,7 +16,7 @@ public class StageData
     // 몬스터 수
     public int monsterCount;
     // 달성조건 개수
-    public int achieveCount;
+    public bool isAchieve;
     // 스테이지 상태
     public StageState state;
 
@@ -27,14 +27,9 @@ public class StageData
         attackCount = _attackCount;
         monsterCount = _monsterCount;
 
-        if(timeout != 0)
+        if(attackCount != -1)
         {
-            achieveCount++;
-        }
-
-        if(attackCount != 0)
-        {
-            achieveCount++;
+            isAchieve = true;
         }
 
         state = StageState.Lock;

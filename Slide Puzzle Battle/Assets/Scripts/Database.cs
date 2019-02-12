@@ -7,7 +7,7 @@ public class Database : Singleton<Database>
 {
     private List<StageData> stageData;
 
-    public List<StageData> StageData { get { return stageData; } }
+    public List<StageData> StageDatas { get { return stageData; } }
 
     public void ReadStageData()
     {
@@ -21,6 +21,7 @@ public class Database : Singleton<Database>
 
             //var data = new StageData(size, 0, 0, 2);
             var data = new StageData(4, 0, 0, 2);
+            //data.state = (StageData.StageState)Random.Range(0, 3);
             stageData.Add(data);
         }
     }
