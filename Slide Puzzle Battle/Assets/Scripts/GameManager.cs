@@ -8,7 +8,7 @@ public class GameManager : Singleton<GameManager>
 {
     public enum PlayState
     {
-        Ready, Play, Pause, Finish
+        Ready, Play, Pause, Clear, Failed, Finish
     }
 
     // 게임오버 체크
@@ -16,8 +16,6 @@ public class GameManager : Singleton<GameManager>
     // 플레이 상태
     private PlayState state;
 
-    // 남은 제한시간
-    private float currentTimeout;
     // 남은 공격횟수
     private int currentAttackCount;
     // 남아있는 몬스터 수
@@ -35,6 +33,8 @@ public class GameManager : Singleton<GameManager>
     private float startY;
     // 공격 진행중
     private bool isAttacked;
+    // 빈칸 인덱스
+    private int blankIndex;
 
     // 보드 
     public Transform board;
@@ -50,7 +50,7 @@ public class GameManager : Singleton<GameManager>
     public int BoardSize { get { return stage.boardSize; } }
     public bool IsAttacked { get { return isAttacked; } }
 
-#region Game Controll
+#region Game State Controll
 
     public void StartGame(StageData _stage)
     {
@@ -63,7 +63,6 @@ public class GameManager : Singleton<GameManager>
             factory = new TileFactory(tilePrefab, board);
 
             //boardSize = Database.Instance....
-            // 1000 / boardSize - 20;
 
             StartCoroutine(CreateBoard(stage.boardSize));
         }
@@ -89,6 +88,12 @@ public class GameManager : Singleton<GameManager>
         state = PlayState.Play;
     }
 
+    public void RestartGame()
+    {
+        FinishGame();
+        StartGame(stage);
+    }
+
     public void FinishGame()
     {
         state = PlayState.Ready;
@@ -107,64 +112,98 @@ public class GameManager : Singleton<GameManager>
         startX = -(tileSize / 2f) * (_boardSize - 1);
         startY = -startX;
 
+        List<TileData.TileType> types = new List<TileData.TileType>();
+
         int tileCount = _boardSize * _boardSize;
+
         int monsterCount = stage.monsterCount;
         int swordCount = monsterCount * 2;
+        int normalCount = tileCount - (monsterCount + swordCount);
 
+        // 타일 리스트 생성
         for (int i = 0; i < tileCount; i++)
         {
-            var type = TileData.TileType.Normal;
-            var coord = IndexToCoord(i);
-            var pos = CoordToPosition(coord);
-
-            // 가장자리에 칼 / 안쪽에 몬스터
-            if(coord.x == 0 || coord.y == 0 || coord.x == _boardSize-1 || coord.y == _boardSize-1 )
+            if(i < monsterCount)
             {
-                //칼생성
-                if(swordCount > 0)
-                {
-                    if (Random.Range(0f, 2f) < 1f)
-                    {
-                        type = TileData.TileType.Attack;
-                        --swordCount;
-                    }
-                }
+                types.Add(TileData.TileType.Monster);
             }
-            else 
+            else if(i-monsterCount < swordCount)
             {
-                if (monsterCount > 0)
-                {
-                    if (Random.Range(0f, 2f) < 1f)
-                    {
-                        type = TileData.TileType.Monster;
-                        --monsterCount;
-                    }
-                }
+                types.Add(TileData.TileType.Attack);
+            }
+            else
+            {
+                types.Add(TileData.TileType.Normal);
+            }
+        }
+
+        // 셔플
+        for (int i = 0; i < types.Count; i++)
+        {
+            int index1 = i;
+            int index2 = Random.Range(0, types.Count);
+            var coord1 = IndexToCoord(index1);
+            var coord2 = IndexToCoord(index2);
+
+            bool isEdge1 = (coord1.x == 0 || coord1.y == 0 || coord1.x == _boardSize - 1 || coord1.y == _boardSize - 1);
+            bool isEdge2 = (coord2.x == 0 || coord2.y == 0 || coord2.x == _boardSize - 1 || coord2.y == _boardSize - 1);
+
+            if(types[index1].Equals(TileData.TileType.Attack) && !isEdge2)
+            {
+                i--;
+                continue;
             }
 
-            //tiles.Add(factory.Create(type, 0, pos, tileSize, i));
+            if (types[index1].Equals(TileData.TileType.Monster) && isEdge2)
+            {
+                i--;
+                continue;
+            }
 
+            if (types[index2].Equals(TileData.TileType.Attack) && !isEdge1)
+            {
+                i--;
+                continue;
+            }
+
+            if (types[index2].Equals(TileData.TileType.Monster) && isEdge1)
+            {
+                i--;
+                continue;
+            }
+
+            TileData.TileType temp = types[index1];
+            types[index1] = types[index2];
+            types[index2] = temp;
+        }
+
+        // 배치
+        for (int i = 0; i < types.Count; i++)
+        {
+            // 마지막 빈칸 넣기
             if (i == tileCount - 1)
             {
                 tiles.Add(null);
             }
             else
             {
+                var coord = IndexToCoord(i);
+                var pos = CoordToPosition(coord);
+
                 //Tile tile = factory.Create(type, 0, pos, tileSize, i);
-                tiles.Add(factory.Create(type, 0, pos, tileSize, i));
+                tiles.Add(factory.Create(types[i], 0, pos, tileSize, i));
             }
 
+            // 생성 딜레이
             yield return new WaitForSeconds(0.05f);
         }
 
+        // 빈타일 인덱스 설정
         blankIndex = tiles.Count - 1;
 
+        // 게임시작
         StartCoroutine(Game());
     }
-
-    ///////////////////////////////////////////////////////////////
-    private int blankIndex;
-    ///////////////////////////////////////////////////////////////
 
     public void DeleteBoard()
     {
@@ -323,47 +362,37 @@ public class GameManager : Singleton<GameManager>
         }
 
         isAttacked = false;
+        DeleteBoard();
+        StartCoroutine(CreateBoard(stage.boardSize));
     }
 
 #endregion
 
     private IEnumerator Game()
     {
-        while(!isGameover)
+        while (!isGameover)
         {
-            // 시간제한
-            // 시간제한이 0이면 시간제한 없음
-            if(stage.timeout > 0)
-            {
-                // 현재제한시간이 0이면 조건 종료
-                if(currentTimeout < 0)
-                {
-                    // 종료 체크
-                }
-                else
-                {
-                    currentTimeout = currentTimeout - Time.deltaTime;
-                }
-
-            }
-
-            // 횟수제한이 0이면 횟수제한 없음
-            if(stage.attackCount > 0)
+            // 스테이지 조건이 있으면
+            if(stage.isAchieve)
             {
                 // 현재 횟수제한이 0이면 조건 종료
-
+                if (stage.attackCount <= 0)
+                {
+                    state = PlayState.Failed;
+                    DialogManager.Instance.ShowDialog("Failed");
+                }
             }
 
-
             // 몬스터 수가 0이면 성공
-
-
-            // 시간제한 및 횟수제한이 0이면 실패
+            if (monsterCount == 0)
+            {
+                // 결과 화면 출력
+                state = PlayState.Clear;
+                DialogManager.Instance.ShowDialog("Clear");
+            }
 
             yield return null;
         }
-
-        state = PlayState.Ready;
     }
 
 

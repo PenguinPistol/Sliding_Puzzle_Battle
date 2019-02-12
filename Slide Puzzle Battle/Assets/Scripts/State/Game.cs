@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using com.PlugStudio.Patterns;
-using com.PlugStudio.Input;
 
 public class Game : State
 {
