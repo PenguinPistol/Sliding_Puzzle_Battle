@@ -19,7 +19,7 @@ public class GameManager : Singleton<GameManager>
     // 남은 공격횟수
     private int currentAttackCount;
     // 남아있는 몬스터 수
-    private int monsterCount;
+    private int currentMonsterCount;
 
     // 현재 스테이지 정보
     private StageData stage;
@@ -47,8 +47,9 @@ public class GameManager : Singleton<GameManager>
     // 실제 타일놓는 보드 크기
     public float boardWidth;
 
-    public int BoardSize { get { return stage.boardSize; } }
+    public int BoardSize { get { return stage.BoardSize; } }
     public bool IsAttacked { get { return isAttacked; } }
+    public int AttackLimit { get { return currentAttackCount; } }
 
 #region Game State Controll
 
@@ -62,9 +63,10 @@ public class GameManager : Singleton<GameManager>
             isGameover = false;
             factory = new TileFactory(tilePrefab, board);
 
-            //boardSize = Database.Instance....
+            currentAttackCount = stage.AttackLimit;
+            currentMonsterCount = stage.MonsterCount;
 
-            StartCoroutine(CreateBoard(stage.boardSize));
+            StartCoroutine(CreateBoard(stage.BoardSize));
         }
     }
 
@@ -116,7 +118,7 @@ public class GameManager : Singleton<GameManager>
 
         int tileCount = _boardSize * _boardSize;
 
-        int monsterCount = stage.monsterCount;
+        int monsterCount = stage.MonsterCount;
         int swordCount = monsterCount * 2;
         int normalCount = tileCount - (monsterCount + swordCount);
 
@@ -261,13 +263,13 @@ public class GameManager : Singleton<GameManager>
 
         for (int i = count - 1; i >= 0; i--)
         {
-            int index = _selectIndex - stage.boardSize * i;
-            int target = _selectIndex - stage.boardSize * (i + 1);
+            int index = _selectIndex - stage.BoardSize * i;
+            int target = _selectIndex - stage.BoardSize * (i + 1);
 
             if (_blankCoord.y > _selectCoord.y)
             {
-                index = _selectIndex + stage.boardSize * i;
-                target = _selectIndex + stage.boardSize * (i + 1);
+                index = _selectIndex + stage.BoardSize * i;
+                target = _selectIndex + stage.BoardSize * (i + 1);
             }
 
             var targetPosition = CoordToPosition(IndexToCoord(target));
@@ -311,15 +313,15 @@ public class GameManager : Singleton<GameManager>
 
     public Vector2 IndexToCoord(int _index)
     {
-        int x = _index == 0 ? 0 : _index % stage.boardSize;
-        int y = _index == 0 ? 0 : _index / stage.boardSize;
+        int x = _index == 0 ? 0 : _index % stage.BoardSize;
+        int y = _index == 0 ? 0 : _index / stage.BoardSize;
 
         return new Vector2(x, y);
     }
 
     public int CoordToIndex(Vector2 _coord)
     {
-        return (int)(_coord.y * stage.boardSize + _coord.x);
+        return (int)(_coord.y * stage.BoardSize + _coord.x);
     }
 
     public Vector2 CoordToPosition(Vector2 _coord)
@@ -363,7 +365,7 @@ public class GameManager : Singleton<GameManager>
 
         isAttacked = false;
         DeleteBoard();
-        StartCoroutine(CreateBoard(stage.boardSize));
+        StartCoroutine(CreateBoard(stage.BoardSize));
     }
 
 #endregion
@@ -376,7 +378,7 @@ public class GameManager : Singleton<GameManager>
             if(stage.isAchieve)
             {
                 // 현재 횟수제한이 0이면 조건 종료
-                if (stage.attackCount <= 0)
+                if (stage.AttackLimit <= 0)
                 {
                     state = PlayState.Failed;
                     DialogManager.Instance.ShowDialog("Failed");
@@ -384,7 +386,7 @@ public class GameManager : Singleton<GameManager>
             }
 
             // 몬스터 수가 0이면 성공
-            if (monsterCount == 0)
+            if (currentMonsterCount == 0)
             {
                 // 결과 화면 출력
                 state = PlayState.Clear;
@@ -414,9 +416,9 @@ public class GameManager : Singleton<GameManager>
             var coord = IndexToCoord(_index) + range[i];
 
             if (coord.x < 0
-                    || coord.x >= stage.boardSize
+                    || coord.x >= stage.BoardSize
                     || coord.y < 0
-                    || coord.y >= stage.boardSize)
+                    || coord.y >= stage.BoardSize)
             {
                 continue;
             }

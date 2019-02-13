@@ -5,15 +5,10 @@ using com.PlugStudio.Patterns;
 
 public class StageList : ListView<StageListItem, StageData>
 {
-    private void Start()
-    {
-        Database.Instance.ReadStageData();
-
-        Init(Database.Instance.StageDatas);
-    }
-
     public override void Init(List<StageData> _items)
     {
+        int completeLevel = Database.Instance.CompleteLastLevel;
+
         for (int i = 0; i < _items.Count; i++)
         {
             var item = Instantiate(listItemPrefab, contentView);
@@ -44,6 +39,11 @@ public class StageList : ListView<StageListItem, StageData>
 
     public override void SelectItem(int _index)
     {
+        if(items[_index].Data.state.Equals(StageData.StageState.Lock))
+        {
+            return;
+        }
+
         StateController.Instance.ChangeState("Game", _index);
     }
 }
