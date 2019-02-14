@@ -22,6 +22,15 @@ public class Database : Singleton<Database>
     public List<StageData> Stages { get { return stages; } }
     public int CompleteLastLevel { get { return completeLastLevel; } }
 
+    private bool isLoadStage = false;
+
+    public bool StageLoaded { get { return isLoadStage; } }
+
+    private void Awake()
+    {
+        StartCoroutine(ReadStages());
+    }
+
     public void Save()
     {
         // 저장
@@ -33,66 +42,69 @@ public class Database : Singleton<Database>
     }
 
     // 레벨데이터 불러오기
-    public IEnumerator ReadStages(StageList _list)
+    public IEnumerator ReadStages()
     {
-        var readData = CSVReader.ReadData(PATH_LEVEL_DATA);
-
-        var types = readData["type"];
-        var headers = readData["header"];
-
-        int dataCount = readData[headers[0] + "_data"].Length;
-
-        stages = new List<StageData>();
-
-        for (int i = 0; i < dataCount; i++)
+        if (!isLoadStage)
         {
-            var data = new StageData();
+            var readData = CSVReader.ReadData(PATH_LEVEL_DATA);
 
-            for (int j = 0; j < headers.Length; j++)
+            var types = readData["type"];
+            var headers = readData["header"];
+
+            int dataCount = readData[headers[0] + "_data"].Length;
+
+            stages = new List<StageData>();
+
+            for (int i = 0; i < dataCount; i++)
             {
-                string value = readData[headers[j] + "_data"][i];
-                value.Trim();
+                var data = new StageData();
 
-                if (value.Length <= 0)
-                    continue;
+                for (int j = 0; j < headers.Length; j++)
+                {
+                    string value = readData[headers[j] + "_data"][i];
+                    value.Trim();
 
-                if(types[j].Equals("float"))
-                {
-                    SetFieldData<StageData, float>(data, headers[j].Trim(), value);
+                    if (value.Length <= 0)
+                        continue;
+
+                    if (types[j].Equals("float"))
+                    {
+                        SetFieldData<StageData, float>(data, headers[j].Trim(), value);
+                    }
+                    else if (types[j].Equals("int"))
+                    {
+                        SetFieldData<StageData, int>(data, headers[j].Trim(), value);
+                    }
+                    else if (types[j].Equals("string"))
+                    {
+                        SetFieldData<StageData, string>(data, headers[j].Trim(), value);
+                    }
                 }
-                else if (types[j].Equals("int"))
+
+                if (data.AttackLimit != 0)
                 {
-                    SetFieldData<StageData, int>(data, headers[j].Trim(), value);
+                    data.isAchieve = true;
                 }
-                else if (types[j].Equals("string"))
+
+                if (i < completeLastLevel)
                 {
-                    SetFieldData<StageData, string>(data, headers[j].Trim(), value);
+                    if (i == completeLastLevel - 1)
+                    {
+                        data.state = StageData.StageState.Unlock;
+                    }
+                    else
+                    {
+                        data.state = StageData.StageState.Clear;
+                    }
                 }
+
+                stages.Add(data);
+
+                yield return null;
             }
 
-            if(data.AttackLimit != 0)
-            {
-                data.isAchieve = true;
-            }
-
-            if(i < completeLastLevel)
-            {
-                if(i == completeLastLevel - 1)
-                {
-                    data.state = StageData.StageState.Unlock;
-                }
-                else
-                {
-                    data.state = StageData.StageState.Clear;
-                }
-            }
-
-            stages.Add(data);
-
-            yield return null;
+            isLoadStage = true;
         }
-
-        _list.Init(stages);
     }
 
     public void ReadLevelMonsterInfo()

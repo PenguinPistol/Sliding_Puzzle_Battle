@@ -46,6 +46,8 @@ public class GameManager : Singleton<GameManager>
     public float spacing;
     // 실제 타일놓는 보드 크기
     public float boardWidth;
+    // 
+    public Animator settingView;
 
     public int BoardSize { get { return stage.BoardSize; } }
     public bool IsAttacked { get { return isAttacked; } }
@@ -77,6 +79,7 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
+        settingView.Play("Setting_Show");
         state = PlayState.Pause;
     }
 
@@ -87,6 +90,7 @@ public class GameManager : Singleton<GameManager>
             return;
         }
 
+        settingView.Play("Setting_Close");
         state = PlayState.Play;
     }
 

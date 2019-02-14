@@ -14,6 +14,8 @@ public class Game : State
     public Text attckLimitText; // 공격횟수
     //public Text energyText; // 재화 텍스트 UI
 
+    public Animator settingView;
+
     public override void Init(params object[] datas)
     {
         stage = Database.Instance.Stages[(int)datas[0]];
@@ -25,6 +27,7 @@ public class Game : State
         }
 
         GameManager.Instance.StartGame(stage);
+        GameManager.Instance.settingView = settingView;
 
         InputController.Instance.AddObservable(this);
     }
@@ -33,7 +36,15 @@ public class Game : State
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            DialogManager.Instance.ShowDialog("LeaveStage");
+            //DialogManager.Instance.ShowDialog("LeaveStage");
+            // 게임세팅 보기 & 게임 퍼즈
+
+            GameManager.Instance.PauseGame();
+        }
+
+        if(stage == null)
+        {
+            return;
         }
 
         if (stage.AttackLimit > 0)

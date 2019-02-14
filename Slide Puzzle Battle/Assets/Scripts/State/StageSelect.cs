@@ -9,7 +9,7 @@ public class StageSelect : State
 
     public override void Init(params object[] datas)
     {
-        StartCoroutine(Database.Instance.ReadStages(listView));
+        StartCoroutine(LoadStageList());
     }
 
     public override void Execute()
@@ -22,5 +22,16 @@ public class StageSelect : State
 
     public override void Exit()
     {
+    }
+
+    private IEnumerator LoadStageList()
+    {
+        while (!Database.Instance.StageLoaded)
+        {
+            yield return null;
+        }
+        Debug.Log("loaded!");
+
+        listView.Init(Database.Instance.Stages);
     }
 }
