@@ -43,4 +43,36 @@ public class StageListItem : MonoBehaviour
             titleTexts[i].text = _title;
         }
     }
+
+    // 리스트 로드시 상태변경용
+    public void SetState(StageData.StageState _state)
+    {
+        switch (_state)
+        {
+            case StageData.StageState.Lock:
+                break;
+            case StageData.StageState.Unlock:
+                animator.Play("ListItem_Unlock_Idle");
+                break;
+            case StageData.StageState.Clear:
+                animator.Play("ListItem_Clear_Idle");
+                break;
+        }
+
+        data.state = _state;
+    }
+
+    public void UnlockLevel()
+    {
+        data.state = StageData.StageState.Unlock;
+
+        animator.Play("ListItem_Unlock");
+    }
+
+    public void CompleteLevel()
+    {
+        data.state = StageData.StageState.Clear;
+
+        animator.Play("ListItem_Clear");
+    }
 }

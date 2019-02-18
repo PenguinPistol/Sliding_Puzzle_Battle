@@ -1,19 +1,53 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using com.PlugStudio.Patterns;
 
 public class StageList : ListView<StageListItem, StageData>
 {
-    private void Start()
-    {
-        Database.Instance.ReadStageData();
-
-        Init(Database.Instance.StageDatas);
-    }
-
     public override void Init(List<StageData> _items)
     {
+        if (items.Count != _items.Count)
+        {
+            StartCoroutine(InitView(_items));
+        }
+        else
+        {
+            SetState();
+        }
+    }
+
+    public override void SelectItem(int _index)
+    {
+        if(items[_index].Data.state.Equals(StageData.StageState.Lock))
+        {
+            return;
+        }
+
+        StateController.Instance.ChangeState("Game", _index);
+    }
+
+    private IEnumerator InitView(List<StageData> _items)
+    {
+        int completeLevel = Database.Instance.CompleteLastLevel;
+
+        float time = Time.time;
+
+        // 리스트 초기화
+        for (int i = 0; i < items.Count; i++)
+        {
+            Destroy(items[i].gameObject);
+            yield return null;
+        }
+        items.Clear();
+
+        time = Time.time - time;
+
+        Debug.Log("지우기 : " + time);
+
+        time = Time.time;
+
         for (int i = 0; i < _items.Count; i++)
         {
             var item = Instantiate(listItemPrefab, contentView);
@@ -28,7 +62,7 @@ public class StageList : ListView<StageListItem, StageData>
 
             var click = item.GetComponent<Button>();
 
-            if(click == null)
+            if (click == null)
             {
                 click = item.AddComponent<Button>();
             }
@@ -39,11 +73,20 @@ public class StageList : ListView<StageListItem, StageData>
             });
 
             items.Add(listItem);
+
+            yield return null;
         }
+
+        time = Time.time - time;
+
+        Debug.Log("걸린시간 : " + time);
     }
 
-    public override void SelectItem(int _index)
+    private void SetState()
     {
-        StateController.Instance.ChangeState("Game", _index);
+        for (int i = 0; i < items.Count; i++)
+        {
+            items[i].SetState(items[i].Data.state);
+        }
     }
 }
