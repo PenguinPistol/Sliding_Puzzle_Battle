@@ -3,8 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using com.PlugStudio;
 
-public class ArrowTile : TileData
+public class ArrowTile : WeaponTile
 {
+    public ArrowTile(Sprite _sprite, float _size, int _damage)
+        : base(_sprite, _size, _damage)
+    {
+        attackRange = new Vector2[]{
+              Vector2.down + Vector2.left
+            , Vector2.down + Vector2.right
+            , Vector2.up + Vector2.left
+            , Vector2.up  + Vector2.right
+        };
+    }
+
+    public ArrowTile(BombTile _other)
+        : base(_other)
+    {
+    }
+
+    public override IEnumerator Attack(List<Tile> _scopes)
+    {
+        yield return null;
+    }
+
+    /*
     public ArrowTile(TileType _type, Sprite _icon, float _rate)
         : base(_type, _icon, _rate)
     {
@@ -64,4 +86,9 @@ public class ArrowTile : TileData
             }
         }
     }
+
+    public override void Execute()
+    {
+    }
+    */
 }

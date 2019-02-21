@@ -24,9 +24,11 @@ public abstract class TileData
 
     public abstract void Attack(Vector2 _position, Vector2 _direction);
     public abstract void AfterAttack();
+    public abstract void Execute();
 
     public virtual IEnumerator AttackAnimation(Animator _animator, List<Tile> _range)
     {
         yield return null;
     }
+
 }

@@ -16,13 +16,15 @@ public class Database : Singleton<Database>
     private const string KEY_REMAINING_POWER = "REMAINING_POWER";
     private const string KEY_QUIT_TIME = "QUIT_TIME";
 
+    private const string DATETIME_FORMAT = "yyyyMMddHHmmss";
+
     private List<StageData> stages;
-    private int completeLastLevel = 3;
+    private int completeLastLevel = 1;
+    private bool isLoadStage = false;
+    private List<MonsterInfo> monsterInfo;
 
     public List<StageData> Stages { get { return stages; } }
     public int CompleteLastLevel { get { return completeLastLevel; } }
-
-    private bool isLoadStage = false;
 
     public bool StageLoaded { get { return isLoadStage; } }
 
@@ -34,11 +36,29 @@ public class Database : Singleton<Database>
     public void Save()
     {
         // 저장
+        PlayerPrefs.SetInt(KEY_COMPLETE_LAST_LEVEL, completeLastLevel);
+        PlayerPrefs.SetString(KEY_QUIT_TIME, DateTime.Now.ToString(DATETIME_FORMAT));
+        PlayerPrefs.Save();
     }
 
     public void Load()
     {
         // 불러오기
+
+        // 시간 차이 계산하기
+        string quit = PlayerPrefs.GetString(KEY_QUIT_TIME);
+        string now = DateTime.Now.ToString(DATETIME_FORMAT);
+        long elapseTime = long.Parse(now) - long.Parse(quit);
+
+        Debug.Log("Elapse Time : " + elapseTime);
+
+        if (elapseTime >= 1000)
+        {
+            // 에너지 하나 충전
+            // elapseTime / 1000 -> 충전량
+        }
+
+        completeLastLevel = PlayerPrefs.GetInt(KEY_COMPLETE_LAST_LEVEL, 2);
     }
 
     // 레벨데이터 불러오기
@@ -46,6 +66,8 @@ public class Database : Singleton<Database>
     {
         if (!isLoadStage)
         {
+            float time = Time.time;
+
             var readData = CSVReader.ReadData(PATH_LEVEL_DATA);
 
             var types = readData["type"];
@@ -58,6 +80,8 @@ public class Database : Singleton<Database>
             for (int i = 0; i < dataCount; i++)
             {
                 var data = new StageData();
+
+                data.level = i;
 
                 for (int j = 0; j < headers.Length; j++)
                 {
@@ -103,11 +127,13 @@ public class Database : Singleton<Database>
                 yield return null;
             }
 
-            isLoadStage = true;
+            Debug.Log("load time : " + (Time.time - time));
+
+            StartCoroutine(ReadLevelMonsterInfo());
         }
     }
 
-    public void ReadLevelMonsterInfo()
+    public IEnumerator ReadLevelMonsterInfo()
     {
         var readData = CSVReader.ReadData(PATH_LEVEL_MONSTER);
 
@@ -118,8 +144,19 @@ public class Database : Singleton<Database>
 
         for (int i = 0; i < dataCount; i++)
         {
+            var data = new MonsterInfo();
 
+            int level = int.Parse(readData[headers[0] + "_data"][i]);
+            int hp = int.Parse(readData[headers[1] + "_data"][i]);
+
+            Debug.Log("level : " + level);
+
+            stages[level-1].monsters.Add(hp);
+
+            yield return null;
         }
+
+        isLoadStage = true;
     }
 
     private void SetFieldData<T1, T2>(T1 _object, string _name, object _value)

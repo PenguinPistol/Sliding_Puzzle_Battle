@@ -19,7 +19,7 @@ public class GameManager : Singleton<GameManager>
     // 남은 공격횟수
     private int currentAttackCount;
     // 남아있는 몬스터 수
-    private int currentMonsterCount;
+    public int currentMonsterCount;
 
     // 현재 스테이지 정보
     private StageData stage;
@@ -35,11 +35,13 @@ public class GameManager : Singleton<GameManager>
     private bool isAttacked;
     // 빈칸 인덱스
     private int blankIndex;
+    // 현재 스테이지 몬스터 체력들
+    private int[] monsters;
 
     // 보드 
     public Transform board;
     // 타일 프리팹
-    public GameObject tilePrefab;
+    public TileController tilePrefab;
     // 타일 팩토리
     private TileFactory factory;
     // 타일 간격
@@ -53,6 +55,8 @@ public class GameManager : Singleton<GameManager>
     public bool IsAttacked { get { return isAttacked; } }
     public int AttackLimit { get { return currentAttackCount; } }
 
+    public Puzzle puzzle;
+
 #region Game State Controll
 
     public void StartGame(StageData _stage)
@@ -63,12 +67,16 @@ public class GameManager : Singleton<GameManager>
         {
             state = PlayState.Play;
             isGameover = false;
-            factory = new TileFactory(tilePrefab, board);
+            //factory = new TileFactory(tilePrefab, board);
 
             currentAttackCount = stage.AttackLimit;
             currentMonsterCount = stage.MonsterCount;
+            monsters = stage.monsters.ToArray();
 
-            StartCoroutine(CreateBoard(stage.BoardSize));
+            //StartCoroutine(CreateBoard(stage.BoardSize));
+
+            puzzle = new Puzzle(stage, board);
+            StartCoroutine(puzzle.CreatePuzzle(tilePrefab));
         }
     }
 
@@ -102,15 +110,18 @@ public class GameManager : Singleton<GameManager>
 
     public void FinishGame()
     {
+        settingView.Play("Setting_Idle");
         state = PlayState.Ready;
         isGameover = true;
 
-        DeleteBoard();
+        puzzle.Clean();
+
+        //DeleteBoard();
     }
     #endregion
 
 #region Board Controll
-
+    /*
     public IEnumerator CreateBoard(int _boardSize)
     {
         tiles = new List<Tile>();
@@ -118,97 +129,106 @@ public class GameManager : Singleton<GameManager>
         startX = -(tileSize / 2f) * (_boardSize - 1);
         startY = -startX;
 
-        List<TileData.TileType> types = new List<TileData.TileType>();
+        var types = new List<TileData.TileType>();
 
-        int tileCount = _boardSize * _boardSize;
+        // 리스트 생성
+        SetTypeList(types, _boardSize);
 
-        int monsterCount = stage.MonsterCount;
-        int swordCount = monsterCount * 2;
-        int normalCount = tileCount - (monsterCount + swordCount);
+        // 섞기
+        Shuffle(types, _boardSize);
 
-        // 타일 리스트 생성
-        for (int i = 0; i < tileCount; i++)
-        {
-            if(i < monsterCount)
-            {
-                types.Add(TileData.TileType.Monster);
-            }
-            else if(i-monsterCount < swordCount)
-            {
-                types.Add(TileData.TileType.Attack);
-            }
-            else
-            {
-                types.Add(TileData.TileType.Normal);
-            }
-        }
-
-        // 셔플
-        for (int i = 0; i < types.Count; i++)
-        {
-            int index1 = i;
-            int index2 = Random.Range(0, types.Count);
-            var coord1 = IndexToCoord(index1);
-            var coord2 = IndexToCoord(index2);
-
-            bool isEdge1 = (coord1.x == 0 || coord1.y == 0 || coord1.x == _boardSize - 1 || coord1.y == _boardSize - 1);
-            bool isEdge2 = (coord2.x == 0 || coord2.y == 0 || coord2.x == _boardSize - 1 || coord2.y == _boardSize - 1);
-
-            if(types[index1].Equals(TileData.TileType.Attack) && !isEdge2)
-            {
-                i--;
-                continue;
-            }
-
-            if (types[index1].Equals(TileData.TileType.Monster) && isEdge2)
-            {
-                i--;
-                continue;
-            }
-
-            if (types[index2].Equals(TileData.TileType.Attack) && !isEdge1)
-            {
-                i--;
-                continue;
-            }
-
-            if (types[index2].Equals(TileData.TileType.Monster) && isEdge1)
-            {
-                i--;
-                continue;
-            }
-
-            TileData.TileType temp = types[index1];
-            types[index1] = types[index2];
-            types[index2] = temp;
-        }
+        int monsterIndex = 0;
 
         // 배치
         for (int i = 0; i < types.Count; i++)
         {
-            // 마지막 빈칸 넣기
-            if (i == tileCount - 1)
-            {
-                tiles.Add(null);
-            }
-            else
-            {
-                var coord = IndexToCoord(i);
-                var pos = CoordToPosition(coord);
+            var coord = IndexToCoord(i);
+            var pos = CoordToPosition(coord);
 
-                //Tile tile = factory.Create(type, 0, pos, tileSize, i);
-                tiles.Add(factory.Create(types[i], 0, pos, tileSize, i));
+            float rate = 0f;
+
+            if(types[i].Equals(TileData.TileType.Monster))
+            {
+                rate = monsters[monsterIndex++];
             }
+
+            tiles.Add(factory.Create(types[i], rate, pos, tileSize, i));
 
             // 생성 딜레이
             yield return new WaitForSeconds(0.05f);
         }
+
+        // 마지막 빈칸
+        tiles.Add(null);
 
         // 빈타일 인덱스 설정
         blankIndex = tiles.Count - 1;
 
         // 게임시작
         StartCoroutine(Game());
+    }
+
+    private void SetTypeList(List<TileData.TileType> _list, int _boardSize)
+    {
+        int tileCount = (_boardSize * _boardSize) - 1;
+        int monsterCount = currentMonsterCount;
+        int swordCount = monsterCount * 2;
+
+        // 타일 리스트 생성
+        for (int i = 0; i < tileCount; i++)
+        {
+            if (i < monsterCount)
+            {
+                _list.Add(TileData.TileType.Monster);
+            }
+            else if (i - monsterCount < swordCount)
+            {
+                _list.Add(TileData.TileType.Attack);
+            }
+            else
+            {
+                _list.Add(TileData.TileType.Normal);
+            }
+        }
+    }
+
+    private void Shuffle(List<TileData.TileType> _list, int _size)
+    {
+        for (int i = 0; i < _list.Count; i++)
+        {
+            int index1 = i;
+            int index2 = Random.Range(0, _list.Count);
+            var coord1 = IndexToCoord(index1);
+            var coord2 = IndexToCoord(index2);
+
+            bool isEdge1 =
+                (coord1.x == 0
+                || coord1.y == 0
+                || coord1.x == _size - 1
+                || coord1.y == _size - 1);
+
+            bool isEdge2 =
+                (coord2.x == 0
+                || coord2.y == 0
+                || coord2.x == _size - 1
+                || coord2.y == _size - 1);
+
+            if (   (_list[index1].Equals(TileData.TileType.Attack) && !isEdge2)
+                || (_list[index2].Equals(TileData.TileType.Attack) && !isEdge1)
+                || (_list[index1].Equals(TileData.TileType.Monster) && isEdge2)
+                || (_list[index2].Equals(TileData.TileType.Monster) && isEdge1))
+            {
+                // 다시 선택
+                i--;
+                continue;
+            }
+
+            //Debug.Log(_list[index1] + "(" + index1 + ") -> " + _list[index2] + "(" + index2 + ")");
+
+            TileData.TileType temp = _list[index1];
+            _list[index1] = _list[index2];
+            _list[index2] = temp;
+        }
     }
 
     public void DeleteBoard()
@@ -222,11 +242,13 @@ public class GameManager : Singleton<GameManager>
 
         tiles.Clear();
     }
+    */
 
 #endregion
 
 #region Tile Movement
 
+    /*
     private bool isChanged = false;
     public bool IsChanged { get { return isChanged; } }
     
@@ -248,15 +270,6 @@ public class GameManager : Singleton<GameManager>
         {
             MoveHorizontal(_selectIndex, selectCoord, blankCoord);
         }
-
-        //tiles.Sort(delegate (Tile a, Tile b)
-        //{
-        //    if (a == null || b == null) return 0;
-
-        //    if (a.index > b.index) return 1;
-        //    else if (a.index < b.index) return -1;
-        //    else return 0;
-        //});
     }
 
     private void MoveVertical(int _selectIndex, Vector2 _selectCoord, Vector2 _blankCoord)
@@ -332,11 +345,12 @@ public class GameManager : Singleton<GameManager>
     {
         return new Vector2(startX + tileSize * _coord.x, startY - tileSize * _coord.y);
     }
-
-    #endregion
+    */
+    
+#endregion
 
 #region Tile Attack
-
+    /*
     public void StartAttack()
     {
         if (isAttacked)
@@ -371,6 +385,12 @@ public class GameManager : Singleton<GameManager>
         DeleteBoard();
         StartCoroutine(CreateBoard(stage.BoardSize));
     }
+    */
+
+    public void Attack()
+    {
+        puzzle.Attack();
+    }
 
 #endregion
 
@@ -401,7 +421,7 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-
+    /*
     public List<Tile> GetRangeTiles(int _index)
     {
         var result = new List<Tile>();
@@ -447,4 +467,5 @@ public class GameManager : Singleton<GameManager>
 
         return result;
     }
+    */
 }
