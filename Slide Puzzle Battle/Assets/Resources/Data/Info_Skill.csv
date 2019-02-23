@@ -1,0 +1,10 @@
+string,string,int,float,float,int,string
+SkillType,Name,UnlockLevel,CoolDown,Value,Cost,Description
+@,,,,,,
+스킬 종류,이름,잠금해제 레벨,쿨타임,효과 값,필요 에너지,설명
+SKILL_CHANGE_TILE_TYPE,Change_Sword,3,30,1,1,무작위 위치에 존재하는 일반 타일 1개를 제거하고 해당 위치에 십자 공격 타일 1개를 생성합니다.
+SKILL_CHANGE_TILE_TYPE,Change_Bow,5,40,2,1,무작위 위치에 존재하는 일반 타일 1개를 제거하고 해당 위치에 특수 공격 타일 ( 활 속성 ) 1개를 생성합니다.
+SKILL_CHANGE_TILE_TYPE,Change_Bomb,7,50,3,1,무작위 위치에 존재하는 일반 타일 1개를 제거하고 해당 위치에 특수 공격 타일 ( 폭탄 속성 ) 1개를 생성합니다.
+SKILL_REINFORCE,Reinforce_Sword,9,60,2,1,"다음 공격 진행 1회에 한하여, 십자 공격 타일의 피해량을 두 배로 계산합니다."
+SKILL_GENARAL,Time_Stop,11,70,0,1,"스킬 사용 후,  타일 이동 / 공격 / 스킬 사용 액션을 하기 전까지 제한 시간과 쿨타임을 정지합니다."
+@,,,,,,

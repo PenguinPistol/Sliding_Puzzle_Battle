@@ -125,13 +125,12 @@ public class Tile
     public int index;
     public TileController controller;
 
-    private Sprite sprite;
+    public Sprite sprite;
 
-    public Sprite Sprite { get { return sprite; } }
 
     public Tile(Sprite _sprite, float _size)
     {
-        sprite = _sprite;
+        this.sprite = _sprite;
         size = _size;
     }
 

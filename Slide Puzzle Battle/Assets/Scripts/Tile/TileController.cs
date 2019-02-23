@@ -23,7 +23,7 @@ public class TileController : MonoBehaviour
         data = _data;
         data.controller = this;
 
-        GetComponent<SpriteRenderer>().sprite = data.Sprite;
+        GetComponent<SpriteRenderer>().sprite = data.sprite;
         transform.localPosition = _posotion;
         transform.localScale = _scale;
     }

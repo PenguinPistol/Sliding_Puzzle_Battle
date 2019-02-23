@@ -34,11 +34,10 @@ public class SwordTile : WeaponTile
         //    playTime += Time.deltaTime;
         //    yield return null;
         //}
-        Debug.Log("====== Scope Count : " + _scopes.Count + " ======");
 
         for (int i = 0; i < _scopes.Count; i++)
         {
-            if(_scopes[i] == null)
+            if(_scopes[i] == null || !_scopes[i].GetType().Equals(typeof(MonsterTile)))
             {
                 continue;
             }

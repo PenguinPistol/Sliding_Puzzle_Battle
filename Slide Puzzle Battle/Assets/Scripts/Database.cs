@@ -9,6 +9,7 @@ public class Database : Singleton<Database>
 {
     private const string PATH_LEVEL_DATA = "Data/Info_Level";
     private const string PATH_LEVEL_MONSTER = "Data/Info_Monster";
+    private const string PATH_SKILL_INFO = "Data/Info_Skill";
 
     private const string KEY_OPTION_BGM_MUTE = "BGM_MUTE";
     private const string KEY_OPTION_SE_MUTE = "SE_MUTE";
@@ -22,8 +23,10 @@ public class Database : Singleton<Database>
     private int completeLastLevel = 1;
     private bool isLoadStage = false;
     private List<MonsterInfo> monsterInfo;
+    private List<Skill> skills;
 
     public List<StageData> Stages { get { return stages; } }
+    public List<Skill> Skills { get { return skills; } }
     public int CompleteLastLevel { get { return completeLastLevel; } }
 
     public bool StageLoaded { get { return isLoadStage; } }
@@ -31,6 +34,7 @@ public class Database : Singleton<Database>
     private void Awake()
     {
         StartCoroutine(ReadStages());
+        StartCoroutine(ReadSkillInfo());
     }
 
     public void Save()
@@ -159,13 +163,55 @@ public class Database : Singleton<Database>
         isLoadStage = true;
     }
 
+    public IEnumerator ReadSkillInfo()
+    {
+        var readData = CSVReader.ReadData(PATH_SKILL_INFO);
+
+        var types = readData["type"];
+        var headers = readData["header"];
+
+        int dataCount = readData[headers[0] + "_data"].Length;
+
+        skills = new List<Skill>();
+
+        for (int i = 0; i < dataCount; i++)
+        {
+            var data = new Skill();
+
+            for (int j = 0; j < headers.Length; j++)
+            {
+                string value = readData[headers[j] + "_data"][i];
+
+                if (types[j].Equals("float"))
+                {
+                    SetFieldData<Skill, float>(data, headers[j].Trim(), value);
+                }
+                else if (types[j].Equals("int"))
+                {
+                    SetFieldData<Skill, int>(data, headers[j].Trim(), value);
+                }
+                else if (types[j].Equals("string"))
+                {
+                    SetFieldData<Skill, string>(data, headers[j].Trim(), value);
+                }
+            }
+
+            skills.Add(data);
+
+            yield return null;
+        }
+
+        Debug.Log("skill count : " + skills.Count);
+    }
+
     private void SetFieldData<T1, T2>(T1 _object, string _name, object _value)
     {
         //SetFieldData<MusicBeatData, float>(data, headers[i], value);
         Type type = typeof(T1);
 
+        // 인스턴스 멤버 포함, 정적멤버 포함, 퍼블릭 포함, 논 퍼블릭 포함, 대소문자 구분안함
         var info = type.GetField(_name
-            , BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            , BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
 
         if(info == null)
         {

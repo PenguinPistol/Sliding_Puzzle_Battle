@@ -56,6 +56,7 @@ public class GameManager : Singleton<GameManager>
     public int AttackLimit { get { return currentAttackCount; } }
 
     public Puzzle puzzle;
+    public List<Skill> skills;
 
 #region Game State Controll
 
@@ -72,8 +73,9 @@ public class GameManager : Singleton<GameManager>
             currentAttackCount = stage.AttackLimit;
             currentMonsterCount = stage.MonsterCount;
             monsters = stage.monsters.ToArray();
-
             //StartCoroutine(CreateBoard(stage.BoardSize));
+
+            skills = Database.Instance.Skills;
 
             puzzle = new Puzzle(stage, board);
             StartCoroutine(puzzle.CreatePuzzle(tilePrefab));
@@ -120,7 +122,7 @@ public class GameManager : Singleton<GameManager>
     }
     #endregion
 
-#region Board Controll
+    #region Board Controll
     /*
     public IEnumerator CreateBoard(int _boardSize)
     {
@@ -244,9 +246,9 @@ public class GameManager : Singleton<GameManager>
     }
     */
 
-#endregion
+    #endregion
 
-#region Tile Movement
+    #region Tile Movement
 
     /*
     private bool isChanged = false;
@@ -346,10 +348,10 @@ public class GameManager : Singleton<GameManager>
         return new Vector2(startX + tileSize * _coord.x, startY - tileSize * _coord.y);
     }
     */
-    
-#endregion
 
-#region Tile Attack
+    #endregion
+
+    #region Tile Attack
     /*
     public void StartAttack()
     {
@@ -387,9 +389,16 @@ public class GameManager : Singleton<GameManager>
     }
     */
 
+    public int reinforceScope;
+
     public void Attack()
     {
         puzzle.Attack();
+    }
+
+    public void UseSkill(int _index)
+    {
+        skills[_index].Activate();
     }
 
 #endregion
@@ -419,6 +428,11 @@ public class GameManager : Singleton<GameManager>
 
             yield return null;
         }
+    }
+
+    public void ChangeTile(System.Type _type)
+    {
+        puzzle.ChangeTile(_type);
     }
 
     /*

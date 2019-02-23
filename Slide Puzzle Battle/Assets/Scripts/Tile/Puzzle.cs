@@ -86,7 +86,7 @@ public class Puzzle
             Sprite sprite = null;
             Tile tile = null;
 
-            if(i < monsterCount)
+            if (i < monsterCount)
             {
                 // 몬스터 타일 생성
                 sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Monster");
@@ -105,7 +105,7 @@ public class Puzzle
                 tile = new Tile(sprite, tileSize);
             }
 
-            if(tile != null)
+            if (tile != null)
             {
                 tile.index = i;
                 tiles.Add(tile);
@@ -162,9 +162,9 @@ public class Puzzle
         int bx = blankIndex % size;
         int by = blankIndex / size;
 
-        if(sx == bx)
+        if (sx == bx)
         {
-            for (int i = Mathf.Abs(by - sy) - 1; i >= 0 ; i--)
+            for (int i = Mathf.Abs(by - sy) - 1; i >= 0; i--)
             {
                 Vector3 dir = Vector3.up;
                 int index = _selectIndex - size * i;
@@ -183,7 +183,7 @@ public class Puzzle
                 tile.index = change;
             }
         }
-        else if(sy == by)
+        else if (sy == by)
         {
             for (int i = Mathf.Abs(bx - sx) - 1; i >= 0; i--)
             {
@@ -218,13 +218,29 @@ public class Puzzle
 
         for (int i = 0; i < tiles.Count - 1; i++)
         {
-            if(tiles[i].GetType().IsSubclassOf(typeof(WeaponTile)))
+            if (tiles[i].GetType().IsSubclassOf(typeof(WeaponTile)))
             {
                 weapons.Add((WeaponTile)tiles[i]);
             }
         }
 
         return weapons;
+    }
+
+    public List<T> GetTiles<T>()
+        where T : Tile
+    {
+        List<T> find = new List<T>();
+
+        for (int i = 0; i < tiles.Count - 1; i++)
+        {
+            if (tiles[i].GetType().Equals(typeof(T)))
+            {
+                find.Add((T)tiles[i]);
+            }
+        }
+
+        return find;
     }
 
     public void Attack()
@@ -245,6 +261,36 @@ public class Puzzle
 
             weapon.controller.StartCoroutine(weapon.Attack(scopes));
         }
+    }
+
+    public void ChangeTile(System.Type _type)
+    {
+        var tiles = GetTiles<Tile>();
+        int index = Random.Range(0, tiles.Count);
+
+        WeaponTile newTile = null;
+        Sprite sprite = null;
+
+        if(_type.Equals(typeof(SwordTile)))
+        {
+            sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Sword");
+            newTile = new SwordTile(null, tileSize, 1);
+        }
+        else if (_type.Equals(typeof(ArrowTile)))
+        {
+            sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Arrow");
+            newTile = new ArrowTile(null, tileSize, 1);
+        }
+        else if (_type.Equals(typeof(BombTile)))
+        {
+            sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Bomb");
+            newTile = new BombTile(null, tileSize, 1, size);
+        }
+        newTile.index = tiles[index].index;
+
+        Object.Destroy(tiles[index].controller.gameObject);
+
+        tiles[index] = newTile;
     }
 
     public Vector2 IndexToCoord(int _index)
