@@ -18,7 +18,7 @@ public class TileFactory
     {
         TileData data = null;
         Sprite icon;
-
+        /*
         switch (_type)
         {
             case TileData.TileType.Blank:
@@ -31,18 +31,26 @@ public class TileFactory
                 data = new NormalTile(_type, icon, _rate);
                 break;
             case TileData.TileType.Monster:
-                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Monster");
-                data = new MonsterTile(_type, icon, _rate);
+                if(_rate > 0)
+                {
+                    icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Monster");
+                    data = new MonsterTile(_type, icon, _rate);
+                }
+                else
+                {
+                    icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Normal");
+                    data = new NormalTile(_type, icon, _rate);
+                }
                 break;
 
             case TileData.TileType.Attack:
                 icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Attack");
-                data = new AttackTile(_type, icon, _rate);
+                data = new SwordTile(_type, icon, _rate);
                 break;
 
             case TileData.TileType.Bomb:
                 icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Boom");
-                data = new BoomTile(_type, icon, _rate);
+                data = new BombTile(_type, icon, _rate);
                 break;
 
             case TileData.TileType.Arrow:
@@ -63,5 +71,8 @@ public class TileFactory
         tile.InitData(data, _position, _size, _index);
 
         return tile;
+        */
+
+        return null;
     }
 }

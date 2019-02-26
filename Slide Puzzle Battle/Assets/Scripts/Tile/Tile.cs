@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Tile : MonoBehaviour
+public class Tile
 {
+
+    /*
     private TileData data;
     private bool isMoved;
 
@@ -29,6 +31,11 @@ public class Tile : MonoBehaviour
     }
 
     public RectTransform rectTransform;
+
+    private void Update()
+    {
+        data.Execute();
+    }
 
     public void InitData(TileData _data, Vector2 _position, float _size, int _index)
     {
@@ -106,4 +113,38 @@ public class Tile : MonoBehaviour
         });
     }
 
+    public void Damaged(float _damage)
+    {
+        Debug.Log("damageds");
+        data.rate -= _damage;
+    }
+
+    */
+
+    public float size; // 정사각형 가로
+    public int index;
+    public TileController controller;
+
+    public Sprite sprite;
+
+
+    public Tile(Sprite _sprite, float _size)
+    {
+        this.sprite = _sprite;
+        size = _size;
+    }
+
+    public Tile(Tile _other)
+    {
+        sprite = _other.sprite;
+        size = _other.size;
+        index = _other.index;
+    }
+
+    /// <summary>
+    /// TileController.Update() 에서 호출
+    /// </summary>
+    public virtual void Execute()
+    {
+    }
 }

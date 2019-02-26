@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
 public class StageData
 {
@@ -19,10 +19,15 @@ public class StageData
     public bool isAchieve;
     // 스테이지 상태
     public StageState state;
+    // 몬스터체력
+    public List<int> monsters;
+    // 레벨 인덱스
+    public int level;
 
     public StageData()
     {
         state = StageState.Lock;
+        monsters = new List<int>();
     }
 
     public StageData(int _boardSize, float _timeLimitSec, int _attackCount, int _monsterCount)
@@ -38,5 +43,6 @@ public class StageData
         }
 
         state = StageState.Lock;
+        monsters = new List<int>();
     }
 }

@@ -38,7 +38,6 @@ public class Game : State
         {
             //DialogManager.Instance.ShowDialog("LeaveStage");
             // 게임세팅 보기 & 게임 퍼즈
-
             GameManager.Instance.PauseGame();
         }
 
@@ -58,11 +57,15 @@ public class Game : State
         GameManager.Instance.FinishGame();
     }
 
+    private readonly int layerMask = 1 << 8;
+
     public override void TouchBegan(Vector3 _touchPosition, int _index)
     {
-        if(GameManager.Instance.IsChanged)
+        RaycastHit2D hit = Physics2D.Raycast(_touchPosition, Vector2.zero, 0f, layerMask);
+
+        if (hit.collider != null)
         {
-            return;
+            hit.collider.SendMessage("SelectTile");
         }
     }
 }
