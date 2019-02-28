@@ -31,10 +31,9 @@ public class Database : Singleton<Database>
 
     public bool StageLoaded { get { return isLoadStage; } }
 
-    private void Awake()
+    public void Awake()
     {
-        StartCoroutine(ReadStages());
-        StartCoroutine(ReadSkillInfo());
+        DontDestroyOnLoad(this);
     }
 
     public void Save()
@@ -45,12 +44,10 @@ public class Database : Singleton<Database>
         PlayerPrefs.Save();
     }
 
-    public void Load()
+    public IEnumerator Load()
     {
-        // 불러오기
-
         // 시간 차이 계산하기
-        string quit = PlayerPrefs.GetString(KEY_QUIT_TIME);
+        string quit = PlayerPrefs.GetString(KEY_QUIT_TIME, "0");
         string now = DateTime.Now.ToString(DATETIME_FORMAT);
         long elapseTime = long.Parse(now) - long.Parse(quit);
 
@@ -62,7 +59,11 @@ public class Database : Singleton<Database>
             // elapseTime / 1000 -> 충전량
         }
 
-        completeLastLevel = PlayerPrefs.GetInt(KEY_COMPLETE_LAST_LEVEL, 2);
+        completeLastLevel = PlayerPrefs.GetInt(KEY_COMPLETE_LAST_LEVEL, 1);
+
+        yield return StartCoroutine(ReadStages());
+        yield return StartCoroutine(ReadLevelMonsterInfo());
+        yield return StartCoroutine(ReadSkillInfo());
     }
 
     // 레벨데이터 불러오기
@@ -109,9 +110,15 @@ public class Database : Singleton<Database>
                     }
                 }
 
+                data.isAchieve = new bool[] { false, false };
+
                 if (data.AttackLimit != 0)
                 {
-                    data.isAchieve = true;
+                    data.isAchieve[0] = true;
+                }
+                if (data.TimeLimit != 0)
+                {
+                    data.isAchieve[1] = true;
                 }
 
                 if (i < completeLastLevel)
@@ -132,8 +139,6 @@ public class Database : Singleton<Database>
             }
 
             Debug.Log("load time : " + (Time.time - time));
-
-            StartCoroutine(ReadLevelMonsterInfo());
         }
     }
 
@@ -148,12 +153,8 @@ public class Database : Singleton<Database>
 
         for (int i = 0; i < dataCount; i++)
         {
-            var data = new MonsterInfo();
-
             int level = int.Parse(readData[headers[0] + "_data"][i]);
             int hp = int.Parse(readData[headers[1] + "_data"][i]);
-
-            Debug.Log("level : " + level);
 
             stages[level-1].monsters.Add(hp);
 
@@ -161,6 +162,7 @@ public class Database : Singleton<Database>
         }
 
         isLoadStage = true;
+        Debug.Log("Finished Read MonsterInfo");
     }
 
     public IEnumerator ReadSkillInfo()
@@ -201,7 +203,7 @@ public class Database : Singleton<Database>
             yield return null;
         }
 
-        Debug.Log("skill count : " + skills.Count);
+        Debug.Log("Finished Read Skill Info");
     }
 
     private void SetFieldData<T1, T2>(T1 _object, string _name, object _value)

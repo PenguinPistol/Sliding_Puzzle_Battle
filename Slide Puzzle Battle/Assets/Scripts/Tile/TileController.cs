@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class TileController : MonoBehaviour
 {
     public Tile data;
     public Animator animator;
+    public SpriteRenderer sprite;
+    public TextMeshPro text;
 
     public int Index { get { return data.index; } }
 
@@ -23,17 +26,13 @@ public class TileController : MonoBehaviour
         data = _data;
         data.controller = this;
 
-        GetComponent<SpriteRenderer>().sprite = data.sprite;
+        sprite.sprite = data.sprite;
         transform.localPosition = _posotion;
         transform.localScale = _scale;
     }
 
     public void Move(Vector3 _direction)
     {
-        //int x = data.index % 4;
-        //int y = data.index / 4;
-        // 빈인덱스가 
-
         StartCoroutine(MoveCoroutine(_direction));
     }
 
@@ -61,8 +60,8 @@ public class TileController : MonoBehaviour
         animator.Play(_name);
     }
 
-    public void Attack()
+    public void CreateParticle(string _name)
     {
-
+        ParticleManager.Instance.CreateParticle(_name, transform.localPosition);
     }
 }

@@ -12,6 +12,7 @@ public class Game : State
     private StageData stage;
 
     public Text attckLimitText; // 공격횟수
+    public Text timeLimitText;
     //public Text energyText; // 재화 텍스트 UI
 
     public Animator settingView;
@@ -30,6 +31,24 @@ public class Game : State
         GameManager.Instance.settingView = settingView;
 
         InputController.Instance.AddObservable(this);
+
+        if (!stage.isAchieve[0])
+        {
+            attckLimitText.gameObject.SetActive(false);
+        }
+        else
+        {
+            attckLimitText.gameObject.SetActive(true);
+        }
+
+        if (!stage.isAchieve[1])
+        {
+            timeLimitText.gameObject.SetActive(false);
+        }
+        else
+        {
+            timeLimitText.gameObject.SetActive(true);
+        }
     }
 
     public override void Execute()
@@ -46,10 +65,8 @@ public class Game : State
             return;
         }
 
-        if (stage.AttackLimit > 0)
-        {
-            attckLimitText.text = "" + GameManager.Instance.AttackLimit;
-        }
+        attckLimitText.text = "" + GameManager.Instance.AttackLimit;
+        timeLimitText.text = "" + (int)GameManager.Instance.TimeLimit;
     }
 
     public override void Exit()
@@ -61,6 +78,11 @@ public class Game : State
 
     public override void TouchBegan(Vector3 _touchPosition, int _index)
     {
+        if(!GameManager.Instance.State.Equals(GameManager.PlayState.Play))
+        {
+            return;
+        }
+
         RaycastHit2D hit = Physics2D.Raycast(_touchPosition, Vector2.zero, 0f, layerMask);
 
         if (hit.collider != null)

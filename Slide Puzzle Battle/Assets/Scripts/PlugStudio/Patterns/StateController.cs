@@ -149,7 +149,7 @@ namespace com.PlugStudio.Patterns
                 time += Time.deltaTime;
                 yield return null;
             }
-            currentState.Init();
+            currentState.Init(datas);
         }
     }
 }

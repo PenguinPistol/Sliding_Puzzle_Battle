@@ -14,7 +14,7 @@ public class Puzzle
     }
 
     private Type type;
-    private int size;
+    private int boardSize;
     private List<Tile> tiles;
     private StageData stage;
     private Transform board;
@@ -24,12 +24,14 @@ public class Puzzle
     private int blankIndex;
 
     public Type PuzzleType { get { return type; } }
-    public int Size { get { return size; } }
+    public int Size { get { return boardSize; } }
+
+    private TileController tileControllerPrefab;
 
     public Puzzle(StageData _stage, Transform _board)
     {
         stage = _stage;
-        size = stage.BoardSize;
+        boardSize = stage.BoardSize;
         board = _board;
     }
 
@@ -54,6 +56,7 @@ public class Puzzle
              -tileSize * (stage.BoardSize - 1)
             , tileSize * (stage.BoardSize - 1)
         );
+        tileControllerPrefab = _tileController;
         // 1000 / 
 
         CreateTiles();
@@ -73,6 +76,9 @@ public class Puzzle
         // 빈타일 생성
         blankIndex = tiles.Count;
         tiles.Add(null);
+
+
+        GameManager.Instance.StartCoroutine(GameManager.Instance.Game());
     }
 
     private void CreateTiles()
@@ -113,6 +119,37 @@ public class Puzzle
         }
     }
 
+    public void Relocation()
+    {
+        var blankTile = tiles.Find(x => x == null);
+        tiles.Remove(blankTile);
+
+        // 재배치
+        Shuffle();
+
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            if(tiles[i].GetType().Equals(typeof(MonsterTile)))
+            {
+                if (((MonsterTile)tiles[i]).IsDead)
+                {
+                    var controller = tiles[i].controller;
+                    var sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Normal");
+                    tiles[i] = new Tile(sprite, tileSize);
+                    tiles[i].controller = controller;
+                }
+            }
+
+            var position = CoordToPosition(IndexToCoord(i));
+            var scale = new Vector3(tileSize, tileSize, 1f);
+
+            tiles[i].controller.SetData(tiles[i], position, scale);
+        }
+
+        blankIndex = tiles.Count;
+        tiles.Add(null);
+    }
+
     private void Shuffle()
     {
         for (int i = 0; i < tiles.Count; i++)
@@ -123,16 +160,10 @@ public class Puzzle
             var coord2 = IndexToCoord(index2);
 
             bool isEdge1 =
-                (coord1.x == 0
-                || coord1.y == 0
-                || coord1.x == size - 1
-                || coord1.y == size - 1);
+                (coord1.x == 0 || coord1.y == 0  || coord1.x == boardSize - 1 || coord1.y == boardSize - 1);
 
             bool isEdge2 =
-                (coord2.x == 0
-                || coord2.y == 0
-                || coord2.x == size - 1
-                || coord2.y == size - 1);
+                (coord2.x == 0 || coord2.y == 0 || coord2.x == boardSize - 1 || coord2.y == boardSize - 1);
 
             if ((tiles[index1].GetType().Equals(typeof(SwordTile)) && !isEdge2)
                 || (tiles[index2].GetType().Equals(typeof(SwordTile)) && !isEdge1)
@@ -156,25 +187,25 @@ public class Puzzle
 
     public void MoveTile(int _selectIndex)
     {
-        int sx = _selectIndex % size;
-        int sy = _selectIndex / size;
+        int sx = _selectIndex % boardSize;
+        int sy = _selectIndex / boardSize;
 
-        int bx = blankIndex % size;
-        int by = blankIndex / size;
+        int bx = blankIndex % boardSize;
+        int by = blankIndex / boardSize;
 
         if (sx == bx)
         {
             for (int i = Mathf.Abs(by - sy) - 1; i >= 0; i--)
             {
                 Vector3 dir = Vector3.up;
-                int index = _selectIndex - size * i;
-                int change = _selectIndex - size * (i + 1);
+                int index = _selectIndex - boardSize * i;
+                int change = _selectIndex - boardSize * (i + 1);
 
                 if (sy < by)
                 {
-                    index = _selectIndex + size * i;
+                    index = _selectIndex + boardSize * i;
                     dir = Vector3.down;
-                    change = _selectIndex + size * (i + 1);
+                    change = _selectIndex + boardSize * (i + 1);
                 }
 
                 var tile = tiles.Find(x => x.index == index);
@@ -243,7 +274,7 @@ public class Puzzle
         return find;
     }
 
-    public void Attack()
+    public IEnumerator Attack()
     {
         var weapons = GetWeaponTiles();
         
@@ -259,8 +290,13 @@ public class Puzzle
                 scopes.Add(tiles.Find(x => x != null && x.index == targetIndex));
             }
 
-            weapon.controller.StartCoroutine(weapon.Attack(scopes));
+            Debug.Log("attack start");
+            yield return weapon.controller.StartCoroutine(weapon.Attack(scopes));
+            Debug.Log("attack finished");
         }
+
+        Debug.Log("Relocation");
+        Relocation();
     }
 
     public void ChangeTile(System.Type _type)
@@ -274,29 +310,33 @@ public class Puzzle
         if(_type.Equals(typeof(SwordTile)))
         {
             sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Sword");
-            newTile = new SwordTile(null, tileSize, 1);
+            newTile = new SwordTile(sprite, tileSize, 1);
         }
         else if (_type.Equals(typeof(ArrowTile)))
         {
             sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Arrow");
-            newTile = new ArrowTile(null, tileSize, 1);
+            newTile = new ArrowTile(sprite, tileSize, 1);
         }
         else if (_type.Equals(typeof(BombTile)))
         {
             sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Bomb");
-            newTile = new BombTile(null, tileSize, 1, size);
+            newTile = new BombTile(sprite, tileSize, 1, boardSize);
         }
         newTile.index = tiles[index].index;
 
-        Object.Destroy(tiles[index].controller.gameObject);
+        var position = CoordToPosition(IndexToCoord(newTile.index));
+        var scale = new Vector3(tileSize, tileSize, 1f);
 
-        tiles[index] = newTile;
+        tiles[index].controller.SetData(newTile, position, scale);
+
+        int newTileIndex = this.tiles.Find(x => x.index == tiles[index].index).index;
+        this.tiles[newTileIndex] = newTile;
     }
 
     public Vector2 IndexToCoord(int _index)
     {
-        int x = _index == 0 ? 0 : _index % size;
-        int y = _index == 0 ? 0 : _index / size;
+        int x = _index == 0 ? 0 : _index % boardSize;
+        int y = _index == 0 ? 0 : _index / boardSize;
 
         return new Vector2(x, y);
     }

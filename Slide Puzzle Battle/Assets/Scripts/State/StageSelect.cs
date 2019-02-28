@@ -7,8 +7,21 @@ public class StageSelect : State
 {
     public StageList listView;
 
+    private bool isClear;
+
     public override void Init(params object[] datas)
     {
+        isClear = false;
+
+        if (datas.Length > 0)
+        {
+            if ((bool)datas[0])
+            {
+                // 스테이지 언락
+                isClear = true;
+            }
+        }
+
         StartCoroutine(LoadStageList());
     }
 
@@ -30,8 +43,7 @@ public class StageSelect : State
         {
             yield return null;
         }
-        Debug.Log("loaded!");
 
-        listView.Init(Database.Instance.Stages);
+        listView.Init(Database.Instance.Stages, isClear);
     }
 }

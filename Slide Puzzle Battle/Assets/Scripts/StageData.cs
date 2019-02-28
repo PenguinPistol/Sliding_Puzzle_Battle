@@ -10,13 +10,13 @@ public class StageData
     // 보드 크기
     public int BoardSize;
     // 제한시간
-    public float TimeLimitSec;
+    public float TimeLimit;
     // 공격횟수
     public int AttackLimit;
     // 몬스터 수
     public int MonsterCount;
     // 달성조건 개수
-    public bool isAchieve;
+    public bool[] isAchieve;
     // 스테이지 상태
     public StageState state;
     // 몬스터체력
@@ -30,16 +30,23 @@ public class StageData
         monsters = new List<int>();
     }
 
-    public StageData(int _boardSize, float _timeLimitSec, int _attackCount, int _monsterCount)
+    public StageData(int _boardSize, float _timeLimit, int _attackCount, int _monsterCount)
     {
         BoardSize = _boardSize;
-        TimeLimitSec = _timeLimitSec;
+        TimeLimit = _timeLimit;
         AttackLimit = _attackCount;
         MonsterCount = _monsterCount;
 
-        if(AttackLimit != -1)
+        isAchieve = new bool[] { false, false };
+
+        if (AttackLimit != 0)
         {
-            isAchieve = true;
+            isAchieve[0] = true;
+        }
+
+        if(TimeLimit != 0)
+        {
+            isAchieve[1] = true;
         }
 
         state = StageState.Lock;

@@ -5,6 +5,11 @@ using com.PlugStudio;
 
 public class SwordTile : WeaponTile
 {
+    string[] aniName = { "Tile_Attack_Up"
+            , "Tile_Attack_Left"
+            , "Tile_Attack_Down"
+            , "Tile_Attack_Right" };
+    
     public SwordTile(Sprite _sprite, float _size, int _damage)
         : base(_sprite, _size, _damage)
     {
@@ -24,17 +29,6 @@ public class SwordTile : WeaponTile
 
     public override IEnumerator Attack(List<Tile> _scopes)
     {
-
-        //Animator animator = controller.GetComponent<Animator>();
-
-        //float playTime = 0f;
-
-        //while(playTime >= animator.GetCurrentAnimatorStateInfo(0).length)
-        //{
-        //    playTime += Time.deltaTime;
-        //    yield return null;
-        //}
-
         for (int i = 0; i < _scopes.Count; i++)
         {
             if(_scopes[i] == null || !_scopes[i].GetType().Equals(typeof(MonsterTile)))
@@ -42,10 +36,22 @@ public class SwordTile : WeaponTile
                 continue;
             }
 
-            Debug.Log(index + " >> attack >> " + _scopes[i].index);
-        }
+            controller.animator.Play(aniName[i]);
 
-        yield return null;
+            float playTime = 0f;
+            float length = controller.animator.GetCurrentAnimatorStateInfo(0).length;
+
+            while (playTime < length)
+            {
+                playTime += Time.deltaTime;
+
+                // animation event 써서 파티클 생성하기 -> 보류
+
+                yield return null;
+            }
+
+            ((MonsterTile)_scopes[i]).Damaged(1);
+        }
 
         // 데미지 주기
     }

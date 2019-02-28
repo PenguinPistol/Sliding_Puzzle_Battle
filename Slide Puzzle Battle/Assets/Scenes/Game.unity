@@ -242,7 +242,7 @@ PrefabInstance:
     - target: {fileID: 8106185651220870556, guid: 095249ab2eb3b834fadd99f5d10eab07,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 144.45
+      value: 144.45001
       objectReference: {fileID: 0}
     - target: {fileID: 8106185651220870556, guid: 095249ab2eb3b834fadd99f5d10eab07,
         type: 3}
@@ -515,7 +515,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 571c021b01dcc5444878c354d9eea25e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a1f7ba0ebf76cd741b9fab46b33d1372, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1132,7 +1132,7 @@ Transform:
   - {fileID: 927845561}
   - {fileID: 1382385116}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &352445187
 GameObject:
@@ -1695,7 +1695,7 @@ GameObject:
   - component: {fileID: 758188353}
   - component: {fileID: 758188355}
   m_Layer: 5
-  m_Name: Timeout Text
+  m_Name: Time Limit Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2338,9 +2338,8 @@ MonoBehaviour:
   board: {fileID: 1002053094}
   tilePrefab: {fileID: 3589185421359992068, guid: 1c7814c7a6907fa478514162034aa7d2,
     type: 3}
-  spacing: 0
-  boardWidth: 1000
   settingView: {fileID: 0}
+  completeLevel: 0
   reinforceScope: 0
 --- !u!4 &894855617
 Transform:
@@ -3495,7 +3494,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1
+  m_Text: 0
 --- !u!222 &1115374607
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3549,7 +3548,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   items:
   - key: Quit
-    value: {fileID: 5167540385065767321, guid: 712ca0f82b1d25f46bddc9292647dd48, type: 3}
+    value: {fileID: 6762481683736037699, guid: e9292a0f1575b3c49a5a1ddf1f3cdc96, type: 3}
   - key: LeaveStage
     value: {fileID: 2342186632129990502, guid: aba5a02f31c051e4e93075417301fad5, type: 3}
   - key: Restart
@@ -3559,7 +3558,7 @@ MonoBehaviour:
   - key: Failed
     value: {fileID: 8531391601565087423, guid: c73683c6e841dfb4abcc1a99a865cd44, type: 3}
   canvas: {fileID: 1847634030}
-  size: 3
+  size: 5
 --- !u!4 &1130702349
 Transform:
   m_ObjectHideFlags: 0
@@ -3590,7 +3589,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1186536480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3734,7 +3733,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: a1f7ba0ebf76cd741b9fab46b33d1372, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 571c021b01dcc5444878c354d9eea25e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3925,7 +3924,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 70697951}
   attckLimitText: {fileID: 1115374606}
+  timeLimitText: {fileID: 758188353}
   settingView: {fileID: 3658342902042793684}
+--- !u!1 &1443675191
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1443675193}
+  - component: {fileID: 1443675192}
+  m_Layer: 0
+  m_Name: ParticleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1443675192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1443675191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1eb71a10d7074dd409ff3c7ff33323cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  items:
+  - key: Sword1
+    value: {fileID: 491456848374520307, guid: 663703d6b166ded49846d94303214bbb, type: 3}
+  - key: Sword2
+    value: {fileID: 153363219652557650, guid: 1b507b263a5991b4795588a09d0e0e04, type: 3}
+  size: 2
+--- !u!4 &1443675193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1443675191}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1472167776
 GameObject:
   m_ObjectHideFlags: 0
@@ -4056,7 +4105,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.00002854877}
+  m_AnchoredPosition: {x: 0, y: 0.000011120008}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1498603956
@@ -4321,7 +4370,7 @@ PrefabInstance:
     - target: {fileID: 8106185651220870556, guid: 095249ab2eb3b834fadd99f5d10eab07,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 144.45
+      value: 144.45001
       objectReference: {fileID: 0}
     - target: {fileID: 8106185651220870556, guid: 095249ab2eb3b834fadd99f5d10eab07,
         type: 3}
@@ -4525,7 +4574,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1843674144
 GameObject:
@@ -4650,7 +4699,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 999
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!224 &1847634031
 RectTransform:
@@ -4665,7 +4714,7 @@ RectTransform:
   m_Children:
   - {fileID: 797102450}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

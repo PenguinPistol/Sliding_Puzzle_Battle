@@ -10,12 +10,31 @@ public class StageList : ListView<StageListItem, StageData>
     {
         if (items.Count != _items.Count)
         {
-            StartCoroutine(InitView(_items));
+            StartCoroutine(InitView(_items, false));
         }
         else
         {
             SetState();
         }
+    }
+
+    public void Init(List<StageData> _items, bool _isClear)
+    {
+        StartCoroutine(InitView(_items, _isClear));
+    }
+
+    private void UnlockNextLevel()
+    {
+        for (int i = 0; i < GameManager.Instance.completeLevel - 1; i++)
+        {
+            items[i].SetState(StageData.StageState.Clear);
+        }
+
+        items[GameManager.Instance.completeLevel - 1].CompleteLevel();
+
+        items[GameManager.Instance.completeLevel].UnlockLevel();
+
+        GameManager.Instance.completeLevel++;
     }
 
     public override void SelectItem(int _index)
@@ -28,10 +47,8 @@ public class StageList : ListView<StageListItem, StageData>
         StateController.Instance.ChangeState("Game", _index);
     }
 
-    private IEnumerator InitView(List<StageData> _items)
+    private IEnumerator InitView(List<StageData> _items, bool _isClear)
     {
-        int completeLevel = Database.Instance.CompleteLastLevel;
-
         float time = Time.time;
 
         // 리스트 초기화
@@ -43,8 +60,6 @@ public class StageList : ListView<StageListItem, StageData>
         items.Clear();
 
         time = Time.time - time;
-
-        Debug.Log("지우기 : " + time);
 
         time = Time.time;
 
@@ -80,6 +95,11 @@ public class StageList : ListView<StageListItem, StageData>
         time = Time.time - time;
 
         Debug.Log("걸린시간 : " + time);
+
+        if(_isClear)
+        {
+            UnlockNextLevel();
+        }
     }
 
     private void SetState()

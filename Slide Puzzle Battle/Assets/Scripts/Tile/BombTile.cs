@@ -9,12 +9,12 @@ public class BombTile : WeaponTile
     {
         attackRange = new Vector2[(_puzzleSize - 1) * 4];
 
+        Vector2[] direction
+            = { Vector2.right, Vector2.down, Vector2.left, Vector2.up };
+
         for (int i = 0; i < attackRange.Length; i += 4)
         {
-            attackRange[i] = Vector2.right * (i / 4 + 1);
-            attackRange[i + 1] = Vector2.down * (i / 4 + 1);
-            attackRange[i + 2] = Vector2.left * (i / 4 + 1);
-            attackRange[i + 3] = Vector2.up * (i / 4 + 1);
+            attackRange[i] = direction[i / 4] * (i / _puzzleSize + 1);
         }
     }
 
@@ -25,7 +25,34 @@ public class BombTile : WeaponTile
 
     public override IEnumerator Attack(List<Tile> _scopes)
     {
-        yield return null;
+        for (int i = 0; i < _scopes.Count; i++)
+        {
+            if(_scopes[i] == null)
+            {
+                continue;
+            }
+
+            _scopes[i].controller.animator.Play("Tile_Attack_Bomb");
+
+            if(_scopes[i].GetType().Equals(typeof(MonsterTile)))
+            {
+                ((MonsterTile)_scopes[i]).Damaged(1);
+            }
+
+            float playTime = 0f;
+            float length = _scopes[i].controller.animator.GetCurrentAnimatorStateInfo(0).length;
+
+            float delay = (i == _scopes.Count - 1) ? length : length/20f;
+
+            while (playTime < delay)
+            {
+                playTime += Time.deltaTime;
+
+                // animation event 써서 파티클 생성하기 -> 보류
+
+                yield return null;
+            }
+        }
     }
 
     /*

@@ -5,14 +5,19 @@ using com.PlugStudio;
 
 public class ArrowTile : WeaponTile
 {
+    string[] aniName = { "Tile_Attack_UL"
+            , "Tile_Attack_UR"
+            , "Tile_Attack_DR"
+            , "Tile_Attack_DL" };
+
     public ArrowTile(Sprite _sprite, float _size, int _damage)
         : base(_sprite, _size, _damage)
     {
         attackRange = new Vector2[]{
               Vector2.down + Vector2.left
             , Vector2.down + Vector2.right
-            , Vector2.up + Vector2.left
-            , Vector2.up  + Vector2.right
+            , Vector2.up + Vector2.right
+            , Vector2.up  + Vector2.left
         };
     }
 
@@ -23,7 +28,29 @@ public class ArrowTile : WeaponTile
 
     public override IEnumerator Attack(List<Tile> _scopes)
     {
-        yield return null;
+        for (int i = 0; i < _scopes.Count; i++)
+        {
+            if (_scopes[i] == null || !_scopes[i].GetType().Equals(typeof(MonsterTile)))
+            {
+                continue;
+            }
+
+            controller.animator.Play(aniName[i]);
+
+            float playTime = 0f;
+            float length = controller.animator.GetCurrentAnimatorStateInfo(0).length;
+
+            while (playTime < length)
+            {
+                playTime += Time.deltaTime;
+
+                // animation event 써서 파티클 생성하기 -> 보류
+
+                yield return null;
+            }
+
+            ((MonsterTile)_scopes[i]).Damaged(1);
+        }
     }
 
     /*
