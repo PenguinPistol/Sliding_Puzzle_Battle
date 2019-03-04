@@ -31,8 +31,17 @@ public class TileController : MonoBehaviour
         transform.localScale = _scale;
     }
 
+    private bool isMoved;
+
     public void Move(Vector3 _direction)
     {
+        if(isMoved)
+        {
+            return;
+        }
+
+        isMoved = true;
+
         StartCoroutine(MoveCoroutine(_direction));
     }
 
@@ -48,6 +57,7 @@ public class TileController : MonoBehaviour
         }
 
         transform.localPosition = target;
+        isMoved = false;
     }
 
     public void SelectTile()

@@ -274,8 +274,12 @@ public class Puzzle
         return find;
     }
 
+    public bool isAttacked;
+
     public IEnumerator Attack()
     {
+        isAttacked = true;
+
         var weapons = GetWeaponTiles();
         
         foreach (var weapon in weapons)
@@ -290,6 +294,11 @@ public class Puzzle
                 scopes.Add(tiles.Find(x => x != null && x.index == targetIndex));
             }
 
+            if(GameManager.Instance.State != GameManager.PlayState.Play)
+            {
+                break;
+            }
+
             Debug.Log("attack start");
             yield return weapon.controller.StartCoroutine(weapon.Attack(scopes));
             Debug.Log("attack finished");
@@ -297,6 +306,8 @@ public class Puzzle
 
         Debug.Log("Relocation");
         Relocation();
+
+        isAttacked = false;
     }
 
     public void ChangeTile(System.Type _type)

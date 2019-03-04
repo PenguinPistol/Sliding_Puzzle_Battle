@@ -73,7 +73,7 @@ public class StageList : ListView<StageListItem, StageData>
             {
                 listItem = item.AddComponent<StageListItem>();
             }
-            listItem.Init(i, _items[i], "Stage " + i);
+            listItem.Init(i, _items[i], "Stage " + (i+1));
 
             var click = item.GetComponent<Button>();
 
