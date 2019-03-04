@@ -1958,12 +1958,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01ea54447f8f0004babc575886ed9a5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentMonsterCount: 0
   board: {fileID: 0}
   tilePrefab: {fileID: 5558405132313599164, guid: 86e81ca8a00e2d34483d59e00b4e43f2,
     type: 3}
-  spacing: 0
-  boardWidth: 1000
   settingView: {fileID: 0}
+  completeLevel: 0
+  reinforceScope: 0
 --- !u!4 &894855617
 Transform:
   m_ObjectHideFlags: 0
@@ -3796,6 +3797,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 1112321232}
   attckLimitText: {fileID: 0}
+  timeLimitText: {fileID: 0}
   settingView: {fileID: 0}
 --- !u!1 &1407691467
 GameObject:
