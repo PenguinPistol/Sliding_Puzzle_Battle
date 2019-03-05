@@ -15,8 +15,6 @@ public class Game : State
     public Text timeLimitText;
     //public Text energyText; // 재화 텍스트 UI
 
-    public Animator settingView;
-
     public override void Init(params object[] datas)
     {
         stage = Database.Instance.Stages[(int)datas[0]];
@@ -28,7 +26,6 @@ public class Game : State
         }
 
         GameManager.Instance.StartGame(stage);
-        GameManager.Instance.settingView = settingView;
 
         InputController.Instance.AddObservable(this);
 

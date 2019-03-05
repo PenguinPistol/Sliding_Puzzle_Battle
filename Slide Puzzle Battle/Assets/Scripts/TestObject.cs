@@ -1,39 +1,44 @@
 ﻿using UnityEngine;
 using System.Collections;
+using com.PlugStudio.Input;
 
-public class TestObject : MonoBehaviour
+public class TestObject : MonoBehaviour, ITouchObservable
 {
+    public Vector2 direction;
+    public float speed;
 
-    IEnumerator Start()
+    private Rigidbody2D rigibody;
+
+    private void Start()
     {
-        yield return StartCoroutine(Test());
-        Debug.Log("Test1 Finished");
-        yield return StartCoroutine(Test2());
-        Debug.Log("Test2 Finished");
+        rigibody = GetComponent<Rigidbody2D>();
+        InputController.Instance.AddObservable(this);
     }
 
-    private IEnumerator Test()
+    public void TouchBegan(Vector3 _touchPosition, int _index)
     {
-        Debug.Log("Test1 Start");
+        RaycastHit2D hit = Physics2D.Raycast(_touchPosition, Vector2.zero, 0f);
 
-        for (int i = 0; i < 10; i++)
+        if (hit.collider != null)
         {
-            Debug.Log("" + i);
-
-            yield return new WaitForSeconds(1f);
+            hit.collider.SendMessage("MoveRight");
         }
     }
 
-    private IEnumerator Test2()
+    public void TouchCancel(Vector3 _touchPosition, int _index)
     {
-        Debug.Log("Test2 Start");
-
-        for (int i = 10; i < 20; i++)
-        {
-            Debug.Log("" + i);
-
-            yield return new WaitForSeconds(1f);
-        }
     }
 
+    public void TouchEnded(Vector3 _touchPosition, int _index)
+    {
+    }
+
+    public void TouchMoved(Vector3 _touchPosition, int _index)
+    {
+    }
+
+    public void MoveRight()
+    {
+        rigibody.AddForce(direction * speed);
+    }
 }

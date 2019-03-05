@@ -29,8 +29,6 @@ public class GameManager : Singleton<GameManager>
     public Transform board;
     // 타일 프리팹
     public TileController tilePrefab;
-    // 타일 팩토리
-    private TileFactory factory;
     // 설정 화면 애니메이터
     public Animator settingView;
 
@@ -72,7 +70,7 @@ public class GameManager : Singleton<GameManager>
 
     public void PauseGame()
     {
-        if(state == PlayState.Pause)
+        if(state != PlayState.Play)
         {
             return;
         }
@@ -114,11 +112,21 @@ public class GameManager : Singleton<GameManager>
 
     public void Attack()
     {
+        if(state != PlayState.Play || puzzle.isAttacked)
+        {
+            return;
+        }
+
         StartCoroutine(puzzle.Attack());
     }
 
     public void UseSkill(int _index)
     {
+        if (state != PlayState.Play)
+        {
+            return;
+        }
+
         skills[_index].Activate();
     }
 

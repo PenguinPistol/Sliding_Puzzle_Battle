@@ -2338,7 +2338,7 @@ MonoBehaviour:
   board: {fileID: 1002053094}
   tilePrefab: {fileID: 3589185421359992068, guid: 1c7814c7a6907fa478514162034aa7d2,
     type: 3}
-  settingView: {fileID: 0}
+  settingView: {fileID: 3658342902042793684}
   completeLevel: 0
   reinforceScope: 0
 --- !u!4 &894855617
@@ -3925,7 +3925,6 @@ MonoBehaviour:
   canvas: {fileID: 70697951}
   attckLimitText: {fileID: 1115374606}
   timeLimitText: {fileID: 758188353}
-  settingView: {fileID: 3658342902042793684}
 --- !u!1 &1443675191
 GameObject:
   m_ObjectHideFlags: 0
@@ -4105,7 +4104,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000011120008}
+  m_AnchoredPosition: {x: 0, y: 0.00006718008}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1498603956
@@ -5697,7 +5696,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
