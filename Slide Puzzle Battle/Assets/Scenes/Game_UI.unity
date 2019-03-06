@@ -2731,7 +2731,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 137.7, y: 94}
+  m_AnchoredPosition: {x: 154, y: 98}
   m_SizeDelta: {x: 710.4, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1100116769
@@ -3798,7 +3798,6 @@ MonoBehaviour:
   canvas: {fileID: 1112321232}
   attckLimitText: {fileID: 0}
   timeLimitText: {fileID: 0}
-  settingView: {fileID: 0}
 --- !u!1 &1407691467
 GameObject:
   m_ObjectHideFlags: 0
