@@ -119,11 +119,14 @@ public class Puzzle
         }
     }
 
-    public IEnumerator Relocation()
+    public void Relocation()
     {
         var blankTile = tiles.Find(x => x == null);
         tiles.Remove(blankTile);
-        
+
+        // 재배치
+        Shuffle();
+
         for (int i = 0; i < tiles.Count; i++)
         {
             if(tiles[i].GetType().Equals(typeof(MonsterTile)))
@@ -136,22 +139,11 @@ public class Puzzle
                     tiles[i].controller = controller;
                 }
             }
-            tiles[i].controller.gameObject.SetActive(false);
-        }
 
-        // 재배치
-        Shuffle();
-
-        for (int i = 0; i < tiles.Count; i++)
-        {
             var position = CoordToPosition(IndexToCoord(i));
             var scale = new Vector3(tileSize, tileSize, 1f);
 
-            tiles[i].controller.gameObject.SetActive(true);
             tiles[i].controller.SetData(tiles[i], position, scale);
-            tiles[i].controller.animator.Play("Tile_Respawn");
-
-            yield return new WaitForSeconds(TILE_CREATE_DELAY);
         }
 
         blankIndex = tiles.Count;
@@ -193,17 +185,8 @@ public class Puzzle
         }
     }
 
-    public bool isMoved = false;
-
     public void MoveTile(int _selectIndex)
     {
-        if(isMoved)
-        {
-            return;
-        }
-
-        isMoved = true;
-
         int sx = _selectIndex % boardSize;
         int sy = _selectIndex / boardSize;
 
@@ -254,12 +237,10 @@ public class Puzzle
         }
         else
         {
-            isMoved = false;
             return;
         }
 
         blankIndex = _selectIndex;
-        isMoved = false;
     }
 
     public List<WeaponTile> GetWeaponTiles()
@@ -324,7 +305,7 @@ public class Puzzle
         }
 
         Debug.Log("Relocation");
-        yield return Relocation();
+        Relocation();
 
         isAttacked = false;
     }

@@ -4,10 +4,14 @@ using com.PlugStudio.Input;
 
 public class TestObject : MonoBehaviour, ITouchObservable
 {
-    public int index;
+    public Vector2 direction;
+    public float speed;
+
+    private Rigidbody2D rigibody;
 
     private void Start()
     {
+        rigibody = GetComponent<Rigidbody2D>();
         InputController.Instance.AddObservable(this);
     }
 
@@ -31,5 +35,10 @@ public class TestObject : MonoBehaviour, ITouchObservable
 
     public void TouchMoved(Vector3 _touchPosition, int _index)
     {
+    }
+
+    public void MoveRight()
+    {
+        rigibody.AddForce(direction * speed);
     }
 }

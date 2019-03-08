@@ -84,10 +84,9 @@ public class Database : Singleton<Database>
 
             for (int i = 0; i < dataCount; i++)
             {
-                var data = new StageData
-                {
-                    level = i
-                };
+                var data = new StageData();
+
+                data.level = i;
 
                 for (int j = 0; j < headers.Length; j++)
                 {

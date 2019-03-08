@@ -11,7 +11,6 @@ public class Game : State
 
     private StageData stage;
 
-    public Text title;
     public Text attckLimitText; // 공격횟수
     public Text timeLimitText;
     //public Text energyText; // 재화 텍스트 UI
@@ -20,9 +19,7 @@ public class Game : State
     {
         stage = Database.Instance.Stages[(int)datas[0]];
 
-        title.text = "STAGE " + stage.level;
-
-        if (stage.AttackLimit > 0)
+        if(stage.AttackLimit > 0)
         {
             attckLimitText.gameObject.SetActive(true);
             attckLimitText.text = "" + stage.AttackLimit;

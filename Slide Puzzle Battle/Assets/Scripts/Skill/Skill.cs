@@ -20,7 +20,7 @@ public class Skill
 
     public void Activate()
     {
-        if(isCoolDown || unlockLevel > GameManager.Instance.completeLevel)
+        if(isCoolDown)
         {
             return;
         }
