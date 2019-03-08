@@ -94,7 +94,7 @@ public class StageList : ListView<StageListItem, StageData>
 
         time = Time.time - time;
 
-        Debug.Log("걸린시간 : " + time);
+        //Debug.Log("걸린시간 : " + time);
 
         if(_isClear)
         {

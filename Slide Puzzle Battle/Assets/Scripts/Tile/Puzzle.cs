@@ -85,7 +85,7 @@ public class Puzzle
     {
         int allTileCount = (stage.BoardSize * stage.BoardSize) - 1;
         int monsterCount = stage.MonsterCount;
-        int swordCount = monsterCount * 2;
+        int swordCount = monsterCount;
 
         for (int i = 0; i < allTileCount; i++)
         {
@@ -201,8 +201,14 @@ public class Puzzle
         {
             return;
         }
-
         isMoved = true;
+
+        GameManager.Instance.StartCoroutine(MoveTileRoutine(_selectIndex));
+    }
+
+    private IEnumerator MoveTileRoutine(int _selectIndex)
+    {
+        float time = Time.time;
 
         int sx = _selectIndex % boardSize;
         int sy = _selectIndex / boardSize;
@@ -229,7 +235,11 @@ public class Puzzle
 
                 tile.controller.Move(dir);
                 tile.index = change;
+
+                yield return new WaitForSeconds(0.01f);
             }
+
+            blankIndex = _selectIndex;
         }
         else if (sy == by)
         {
@@ -250,15 +260,14 @@ public class Puzzle
 
                 tile.controller.Move(dir);
                 tile.index = change;
+
+                yield return new WaitForSeconds(0.01f);
             }
-        }
-        else
-        {
-            isMoved = false;
-            return;
+
+            blankIndex = _selectIndex;
         }
 
-        blankIndex = _selectIndex;
+        //Debug.Log("time : " + (Time.time - time));
         isMoved = false;
     }
 
@@ -297,6 +306,7 @@ public class Puzzle
 
     public IEnumerator Attack()
     {
+        bool finished = false;
         isAttacked = true;
 
         var weapons = GetWeaponTiles();
@@ -315,16 +325,17 @@ public class Puzzle
 
             if(GameManager.Instance.State != GameManager.PlayState.Play)
             {
+                finished = true;
                 break;
             }
 
-            Debug.Log("attack start");
             yield return weapon.controller.StartCoroutine(weapon.Attack(scopes));
-            Debug.Log("attack finished");
         }
 
-        Debug.Log("Relocation");
-        yield return Relocation();
+        if(finished == false)
+        {
+            yield return Relocation();
+        }
 
         isAttacked = false;
     }

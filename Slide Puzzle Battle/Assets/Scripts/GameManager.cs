@@ -39,6 +39,7 @@ public class GameManager : Singleton<GameManager>
     public Puzzle puzzle;
     public List<Skill> skills;
     public int completeLevel;
+    public int MaxLevel = 5;
 
     private void Start()
     {
@@ -93,6 +94,7 @@ public class GameManager : Singleton<GameManager>
     public void RestartGame()
     {
         FinishGame();
+        StopCoroutine(Game());
         StartGame(stage);
     }
 
@@ -173,6 +175,7 @@ public class GameManager : Singleton<GameManager>
                 // 결과 화면 출력
                 isGameover = true;
                 state = PlayState.Clear;
+
                 DialogManager.Instance.ShowDialog("Clear");
             }
 
