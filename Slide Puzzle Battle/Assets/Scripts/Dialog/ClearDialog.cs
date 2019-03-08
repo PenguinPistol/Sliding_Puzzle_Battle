@@ -10,7 +10,7 @@ public class ClearDialog : Dialog
         // 스테이지 선택
         gameObject.SetActive(false);
         // 스테이지 클리어
-        StateController.Instance.ChangeBeforeState(true);
+        StateController.Instance.ChangeState("StageSelect", true);
     }
 
     public override void NeatralAction()
@@ -24,5 +24,9 @@ public class ClearDialog : Dialog
     {
         // 다음 스테이지
         gameObject.SetActive(false);
+
+        GameManager.Instance.completeLevel++;
+
+        StateController.Instance.ChangeState("Game", GameManager.Instance.completeLevel);
     }
 }
