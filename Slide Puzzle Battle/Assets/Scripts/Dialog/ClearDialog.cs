@@ -25,8 +25,17 @@ public class ClearDialog : Dialog
         // 다음 스테이지
         gameObject.SetActive(false);
 
-        GameManager.Instance.completeLevel++;
+        if(GameManager.Instance.MaxLevel == GameManager.Instance.completeLevel)
+        {
+            StateController.Instance.ChangeState("StageSelect", true);
+        }
+        else
+        {
+            StateController.Instance.ChangeState("Game", GameManager.Instance.completeLevel);
 
-        StateController.Instance.ChangeState("Game", GameManager.Instance.completeLevel);
+            GameManager.Instance.completeLevel++;
+        }
+
+       
     }
 }

@@ -29,7 +29,7 @@ public class DialogManager : Singleton<DialogManager>
         {
             return;
         }
-        Debug.Log("시발 : " + dialogs[_name].gameObject.name);
+        //Debug.Log("시발 : " + dialogs[_name].gameObject.name);
 
         dialogs[_name].gameObject.SetActive(true);
     }

@@ -83,11 +83,17 @@ public class Game : State
             return;
         }
 
+        if(GameManager.Instance.puzzle.isMoved)
+        {
+            return;
+        }
+
         RaycastHit2D hit = Physics2D.Raycast(_touchPosition, Vector2.zero, 0f, layerMask);
 
         if (hit.collider != null)
         {
-            hit.collider.SendMessage("SelectTile");
+            int index = hit.collider.GetComponent<TileController>().Index;
+            GameManager.Instance.puzzle.MoveTile(index);
         }
     }
 }

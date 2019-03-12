@@ -139,7 +139,7 @@ public class Database : Singleton<Database>
                 yield return null;
             }
 
-            Debug.Log("load time : " + (Time.time - time));
+            //Debug.Log("load time : " + (Time.time - time));
         }
     }
 
@@ -163,7 +163,7 @@ public class Database : Singleton<Database>
         }
 
         isLoadStage = true;
-        Debug.Log("Finished Read MonsterInfo");
+        //Debug.Log("Finished Read MonsterInfo");
     }
 
     public IEnumerator ReadSkillInfo()
@@ -204,7 +204,7 @@ public class Database : Singleton<Database>
             yield return null;
         }
 
-        Debug.Log("Finished Read Skill Info");
+        //Debug.Log("Finished Read Skill Info");
     }
 
     private void SetFieldData<T1, T2>(T1 _object, string _name, object _value)

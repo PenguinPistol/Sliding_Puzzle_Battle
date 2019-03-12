@@ -20,6 +20,7 @@ public class Skill
 
     public void Activate()
     {
+        /*
         if(isCoolDown || unlockLevel > GameManager.Instance.completeLevel)
         {
             return;
@@ -58,6 +59,7 @@ public class Skill
 
         // 쿨다운 사용안함
         //GameManager.Instance.StartCoroutine(CoolDown());
+        */
     }
 
     public IEnumerator CoolDown()

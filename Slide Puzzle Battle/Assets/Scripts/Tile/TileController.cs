@@ -52,7 +52,7 @@ public class TileController : MonoBehaviour
 
         while (Vector3.Distance(transform.localPosition, target) > 0.1f)
         {
-            transform.localPosition = Vector3.MoveTowards(transform.localPosition, target, Time.deltaTime * 10f);
+            transform.localPosition = Vector3.MoveTowards(transform.localPosition, target, Time.deltaTime * 30f);
             yield return null;
         }
 
