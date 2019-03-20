@@ -22,6 +22,7 @@ public class Game : State
     [Space]
     public Puzzle puzzle;
 
+    private Animator timeLimitAnimator;
     private float currentTimeLimit;
 
     public override IEnumerator Initialize(params object[] _data)
@@ -29,6 +30,7 @@ public class Game : State
         int index = (int)_data[0];
 
         stage = GameManager.Instance.Stages[index];
+        timeLimitAnimator = timeLimitText.GetComponent<Animator>();
 
         title.text = stage.title;
 
@@ -78,8 +80,6 @@ public class Game : State
 
     public override void Execute()
     {
-        //Debug.Log("state : " + GameManager.Instance.State);
-
         if (stage == null)
         {
             return;
@@ -88,7 +88,6 @@ public class Game : State
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             // 게임세팅 보기 & 게임 퍼즈
-            //DialogManager.Instance.ShowDialog("LeaveStage");
             PauseGame();
         }
         else if(Input.GetKeyDown(KeyCode.Return))
@@ -116,6 +115,13 @@ public class Game : State
                 {
                     GameManager.Instance.FinishGame(false);
                     return;
+                }
+
+                if(Mathf.FloorToInt(currentTimeLimit) == 10
+                    && timeLimitAnimator.GetBool("Timeout") == false)
+                {
+                    SoundManager.Instance.PlaySE(12);
+                    timeLimitAnimator.SetBool("Timeout", true);
                 }
 
                 if(GameManager.TimeStop == false)

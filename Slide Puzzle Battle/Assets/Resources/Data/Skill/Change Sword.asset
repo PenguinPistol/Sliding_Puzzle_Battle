@@ -17,7 +17,7 @@ MonoBehaviour:
     \uD0C0\uC77C 1\uAC1C\uB97C \uC81C\uAC70\uD558\uACE0 \uD574\uB2F9 \uC704\uCE58\uC5D0
     \uC2ED\uC790 \uACF5\uACA9 \uD0C0\uC77C 1\uAC1C\uB97C \uC0DD\uC131\uD569\uB2C8\uB2E4."
   sprite: {fileID: 21300000, guid: 648039b7797d0984ea929da285df3518, type: 3}
-  unlockLevel: 1
+  unlockLevel: 6
   cooldown: 10
   value: 1
   cost: 1

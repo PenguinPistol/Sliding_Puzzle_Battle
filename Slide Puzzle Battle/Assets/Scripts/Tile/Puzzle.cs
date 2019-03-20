@@ -162,16 +162,8 @@ public class Puzzle : MonoBehaviour
         var blankCoord = IndexToCoord(blankIndex);
         var magnitude = (selectCoord - blankCoord).sqrMagnitude;
 
-        //if(magnitude % (stage.BoardSize - 1) == 1)
         if (magnitude == 1)
         {
-            /*
-            // 역순으로 이동
-            for(int i = magnitude/boardsize; i >= 0 ; i--)
-            {
-            }
-            */
-
             var selectTile = tiles.Find(x => x.Index == _selectIndex);
             Vector3 direction = blankCoord - selectCoord;
             direction.y *= -1;
@@ -182,7 +174,7 @@ public class Puzzle : MonoBehaviour
 
             selectTile.data.index = blankIndex;
 
-            blankIndex = _selectIndex;
+            blankIndex = _selectIndex; 
         }
 
         isMoved = false;
@@ -275,6 +267,11 @@ public class Puzzle : MonoBehaviour
 
         foreach (var weapon in weapons)
         {
+            while(GameManager.Instance.IsPause)
+            {
+                yield return null;
+            }
+
             var scopes = new List<Tile>();
             var attackRange = ((WeaponTile)weapon.data).AttackRanges;
 

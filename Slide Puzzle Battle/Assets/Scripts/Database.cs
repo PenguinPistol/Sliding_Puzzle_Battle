@@ -150,7 +150,7 @@ public class Database
             data.isAchieve = new bool[] {
                 (data.AttackLimit != 0)
                 , (data.TimeLimit != 0) };
-            data.title = string.Format("Level {0}", data.level);
+            data.title = string.Format("LEVEL {0}", data.level);
 
             stageData.Add(data);
 
