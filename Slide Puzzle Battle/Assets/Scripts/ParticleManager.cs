@@ -24,8 +24,6 @@ public class ParticleManager : Singleton<ParticleManager>
     {
         var particle = Instantiate(particles[_name].gameObject, _position, Quaternion.identity).GetComponent<ParticleSystem>();
 
-        Debug.Log("particle : " + particle);
-
         StartCoroutine(AutoDestroy(particle));
     }
 
@@ -36,7 +34,6 @@ public class ParticleManager : Singleton<ParticleManager>
             yield return null;
         }
 
-        Debug.Log("alive false");
-        //Destroy(_particle.gameObject);
+        Destroy(_particle.gameObject);
     }
 }

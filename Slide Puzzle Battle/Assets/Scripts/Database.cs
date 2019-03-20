@@ -1,155 +1,168 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using com.PlugStudio.Patterns;
 using System;
 using System.Reflection;
 
-public class Database : Singleton<Database>
+public class Database
 {
-    private const string PATH_LEVEL_DATA = "Data/Info_Level";
-    private const string PATH_LEVEL_MONSTER = "Data/Info_Monster";
-    private const string PATH_SKILL_INFO = "Data/Info_Skill";
+    private const string PATH_GAME_CONST            = "Data/GameConst";
+    private const string PATH_LEVEL_DATA            = "Data/Info_Level";
+    private const string PATH_LEVEL_MONSTER         = "Data/Info_Monster";
+    private const string PATH_SKILL_INFO            = "Data/Info_Skill";
 
-    private const string KEY_OPTION_BGM_MUTE = "BGM_MUTE";
-    private const string KEY_OPTION_SE_MUTE = "SE_MUTE";
-    private const string KEY_COMPLETE_LAST_LEVEL = "COMPLETE_LAST_LEVEL";
-    private const string KEY_REMAINING_POWER = "REMAINING_POWER";
-    private const string KEY_QUIT_TIME = "QUIT_TIME";
+    private const string KEY_OPTION_BGM_MUTE        = "BGM_MUTE";
+    private const string KEY_OPTION_SE_MUTE         = "SE_MUTE";
+    private const string KEY_COMPLETE_LAST_LEVEL    = "COMPLETE_LAST_LEVEL";
+    private const string KEY_REMAINING_ENERGY       = "REMAINING_ENERGY";
+    private const string KEY_QUIT_TIME              = "QUIT_TIME";
+    private const string KEY_VIEW_TUTORIAL          = "VIEW_TUTORIAL";
 
-    private const string DATETIME_FORMAT = "yyyyMMddHHmmss";
+    private const string DATETIME_FORMAT            = "yyyyMMddHHmmss";
 
-    private List<StageData> stages;
-    private int completeLastLevel = 1;
-    private bool isLoadStage = false;
-    private List<MonsterInfo> monsterInfo;
-    private List<Skill> skills;
+    private List<StageData> stageData;
+    private List<Skill> skillList;
+    private SavedGameData gameData;
 
-    public List<StageData> Stages { get { return stages; } }
-    public List<Skill> Skills { get { return skills; } }
-    public int CompleteLastLevel { get { return completeLastLevel; } }
+    public List<StageData> Stages { get { return stageData; } }
+    public List<Skill> Skills { get { return skillList; } }
+    public SavedGameData GameData { get { return gameData; } }
 
-    public bool StageLoaded { get { return isLoadStage; } }
 
-    public void Awake()
+    public class SavedGameData
     {
-        DontDestroyOnLoad(this);
+        public bool muteBGM;
+        public bool muteSE;
+        public long elapseTime;
+        public int completeLevel;
+        public int remainingEnergy;
+        public bool viewTutorial;
+
+        public SavedGameData(bool _muteBGM, bool _muteSE, long _elapseTime, int _completeLevel, int _remainingEnergy, bool _viewTutorial)
+        {
+            muteBGM = _muteBGM;
+            muteSE = _muteSE;
+            elapseTime = _elapseTime;
+            completeLevel = _completeLevel;
+            remainingEnergy = _remainingEnergy;
+            viewTutorial = _viewTutorial;
+        }
     }
 
-    public void Save()
+    public void SaveGameData()
     {
         // 저장
-        PlayerPrefs.SetInt(KEY_COMPLETE_LAST_LEVEL, completeLastLevel);
+        PlayerPrefs.SetString(KEY_OPTION_BGM_MUTE, gameData.muteBGM.ToString());
+        PlayerPrefs.SetString(KEY_OPTION_SE_MUTE, gameData.muteSE.ToString());
+        PlayerPrefs.SetInt(KEY_COMPLETE_LAST_LEVEL, gameData.completeLevel);
+        PlayerPrefs.SetInt(KEY_REMAINING_ENERGY, SkillManager.Instance.currentEnergy);
         PlayerPrefs.SetString(KEY_QUIT_TIME, DateTime.Now.ToString(DATETIME_FORMAT));
+        PlayerPrefs.SetString(KEY_VIEW_TUTORIAL, gameData.viewTutorial.ToString());
+
         PlayerPrefs.Save();
     }
 
-    public IEnumerator Load()
+    public void LoadGameData()
     {
-        // 시간 차이 계산하기
-        string quit = PlayerPrefs.GetString(KEY_QUIT_TIME, "0");
-        string now = DateTime.Now.ToString(DATETIME_FORMAT);
-        long elapseTime = long.Parse(now) - long.Parse(quit);
+        string currentTime = DateTime.Now.ToString(DATETIME_FORMAT);
+        string quitTime = PlayerPrefs.GetString(KEY_QUIT_TIME, currentTime);
 
-        Debug.Log("Elapse Time : " + elapseTime);
+        string strMuteBGM = PlayerPrefs.GetString(KEY_OPTION_BGM_MUTE, bool.FalseString);
+        string strMuteSE = PlayerPrefs.GetString(KEY_OPTION_SE_MUTE, bool.FalseString);
+        string strViewTutorial = PlayerPrefs.GetString(KEY_VIEW_TUTORIAL, bool.FalseString);
 
-        if (elapseTime >= 1000)
+        bool muteBGM = bool.Parse(strMuteBGM);
+        bool muteSE = bool.Parse(strMuteSE);
+        long elapseTime = long.Parse(currentTime) - long.Parse(quitTime);
+        int completeLevel = PlayerPrefs.GetInt(KEY_COMPLETE_LAST_LEVEL, 0);
+        int remainingEnergy = PlayerPrefs.GetInt(KEY_REMAINING_ENERGY, 5);
+        bool viewTutorial = bool.Parse(strViewTutorial);
+
+        gameData = new SavedGameData(muteBGM, muteSE, elapseTime, completeLevel, remainingEnergy, viewTutorial);
+
+        int recoveryEnergy = (int)(elapseTime / GameConst.Cooldown_EnergyRecovery);
+        float elapseRecoveryTime = elapseTime % GameConst.Cooldown_EnergyRecovery;
+
+        remainingEnergy += recoveryEnergy;
+
+        if (remainingEnergy >= GameConst.MaxEnergy)
         {
-            // 에너지 하나 충전
-            // elapseTime / 1000 -> 충전량
+            remainingEnergy = GameConst.MaxEnergy;
+            SkillManager.Instance.elapseRecoveryTime = 0f;
+        }
+        else
+        {
+            SkillManager.Instance.elapseRecoveryTime = elapseRecoveryTime;
         }
 
-        completeLastLevel = PlayerPrefs.GetInt(KEY_COMPLETE_LAST_LEVEL, 1);
-
-        yield return StartCoroutine(ReadStages());
-        yield return StartCoroutine(ReadLevelMonsterInfo());
-        yield return StartCoroutine(ReadSkillInfo());
+        SkillManager.Instance.currentEnergy = remainingEnergy;
     }
-
+    
     // 레벨데이터 불러오기
-    public IEnumerator ReadStages()
+    public IEnumerator ReadStageData()
     {
-        if (!isLoadStage)
+        var readData = CSVReader.ReadData(PATH_LEVEL_DATA);
+        var types = readData["type"];
+        var headers = readData["header"];
+        int dataCount = readData[headers[0] + "_data"].Length;
+
+        stageData = new List<StageData>();
+
+        for (int i = 0; i < dataCount; i++)
         {
-            float time = Time.time;
-
-            var readData = CSVReader.ReadData(PATH_LEVEL_DATA);
-
-            var types = readData["type"];
-            var headers = readData["header"];
-
-            int dataCount = readData[headers[0] + "_data"].Length;
-
-            stages = new List<StageData>();
-
-            for (int i = 0; i < dataCount; i++)
+            var data = new StageData
             {
-                var data = new StageData
+                level = i
+            };
+
+            for (int j = 0; j < headers.Length; j++)
+            {
+                string value = readData[headers[j] + "_data"][i];
+                value.Trim();
+
+                if (value.Length <= 0)
+                    continue;
+
+                if (types[j].Equals("float"))
                 {
-                    level = i
-                };
-
-                for (int j = 0; j < headers.Length; j++)
-                {
-                    string value = readData[headers[j] + "_data"][i];
-                    value.Trim();
-
-                    if (value.Length <= 0)
-                        continue;
-
-                    if (types[j].Equals("float"))
-                    {
-                        SetFieldData<StageData, float>(data, headers[j].Trim(), value);
-                    }
-                    else if (types[j].Equals("int"))
-                    {
-                        SetFieldData<StageData, int>(data, headers[j].Trim(), value);
-                    }
-                    else if (types[j].Equals("string"))
-                    {
-                        SetFieldData<StageData, string>(data, headers[j].Trim(), value);
-                    }
+                    SetFieldData<StageData, float>(data, headers[j].Trim(), value);
                 }
-
-                data.isAchieve = new bool[] { false, false };
-
-                if (data.AttackLimit != 0)
+                else if (types[j].Equals("int"))
                 {
-                    data.isAchieve[0] = true;
+                    SetFieldData<StageData, int>(data, headers[j].Trim(), value);
                 }
-                if (data.TimeLimit != 0)
+                else if (types[j].Equals("string"))
                 {
-                    data.isAchieve[1] = true;
+                    SetFieldData<StageData, string>(data, headers[j].Trim(), value);
                 }
-
-                if (i < completeLastLevel)
-                {
-                    if (i == completeLastLevel - 1)
-                    {
-                        data.state = StageData.StageState.Unlock;
-                    }
-                    else
-                    {
-                        data.state = StageData.StageState.Clear;
-                    }
-                }
-
-                stages.Add(data);
-
-                yield return null;
             }
 
-            //Debug.Log("load time : " + (Time.time - time));
+            if(i == gameData.completeLevel)
+            {
+                data.state = StageData.StageState.Unlock;
+            }
+            else if(i < gameData.completeLevel)
+            {
+                data.state = StageData.StageState.Clear;
+                data.isClear = true;
+            }
+
+            data.isAchieve = new bool[] {
+                (data.AttackLimit != 0)
+                , (data.TimeLimit != 0) };
+            data.title = string.Format("Level {0}", data.level);
+
+            stageData.Add(data);
+
+            yield return null;
         }
     }
 
     public IEnumerator ReadLevelMonsterInfo()
     {
         var readData = CSVReader.ReadData(PATH_LEVEL_MONSTER);
-
         var types = readData["type"];
         var headers = readData["header"];
-
         int dataCount = readData[headers[0] + "_data"].Length;
 
         for (int i = 0; i < dataCount; i++)
@@ -157,54 +170,37 @@ public class Database : Singleton<Database>
             int level = int.Parse(readData[headers[0] + "_data"][i]);
             int hp = int.Parse(readData[headers[1] + "_data"][i]);
 
-            stages[level-1].monsters.Add(hp);
+            stageData[level-1].monsters.Add(hp);
 
             yield return null;
         }
-
-        isLoadStage = true;
-        //Debug.Log("Finished Read MonsterInfo");
     }
 
-    public IEnumerator ReadSkillInfo()
+    public IEnumerator ReadGameConst()
     {
-        var readData = CSVReader.ReadData(PATH_SKILL_INFO);
+        var readData = CSVReader.ReadConst(PATH_GAME_CONST);
 
-        var types = readData["type"];
-        var headers = readData["header"];
+        GameConst gameConst = new GameConst();
 
-        int dataCount = readData[headers[0] + "_data"].Length;
-
-        skills = new List<Skill>();
-
-        for (int i = 0; i < dataCount; i++)
+        foreach (var data in readData)
         {
-            var data = new Skill();
+            string type = data["타입"];
 
-            for (int j = 0; j < headers.Length; j++)
+            if(type.Equals("float"))
             {
-                string value = readData[headers[j] + "_data"][i];
-
-                if (types[j].Equals("float"))
-                {
-                    SetFieldData<Skill, float>(data, headers[j].Trim(), value);
-                }
-                else if (types[j].Equals("int"))
-                {
-                    SetFieldData<Skill, int>(data, headers[j].Trim(), value);
-                }
-                else if (types[j].Equals("string"))
-                {
-                    SetFieldData<Skill, string>(data, headers[j].Trim(), value);
-                }
+                SetFieldData<GameConst, float>(gameConst, data["이름"], data["값"]);
             }
-
-            skills.Add(data);
+            else if (type.Equals("int"))
+            {
+                SetFieldData<GameConst, int>(gameConst, data["이름"], data["값"]);
+            }
+            else if (type.Equals("string"))
+            {
+                SetFieldData<GameConst, string>(gameConst, data["이름"], data["값"]);
+            }
 
             yield return null;
         }
-
-        //Debug.Log("Finished Read Skill Info");
     }
 
     private void SetFieldData<T1, T2>(T1 _object, string _name, object _value)

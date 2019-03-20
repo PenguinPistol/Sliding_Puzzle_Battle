@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using com.PlugStudio.Patterns;
 
@@ -7,22 +6,32 @@ public class StageSelect : State
 {
     public StageList listView;
 
-    private bool isClear;
+    private static bool isInit = false;
+    private static int beforeCompleteLevel = 0;
 
-    public override void Init(params object[] datas)
+    public override IEnumerator Initialize(params object[] _data)
     {
-        isClear = false;
+        yield return StartCoroutine(listView.Init(GameManager.Instance.Stages));
+        SoundManager.Instance.PlayBGM(0);
+    }
 
-        if (datas.Length > 0)
+    public override void FirstFrame()
+    {
+        if(isInit == false)
         {
-            if ((bool)datas[0])
+            isInit = true;
+
+            beforeCompleteLevel = GameManager.Instance.CompleteLevel;
+        }
+        else
+        {
+            if (beforeCompleteLevel != GameManager.Instance.CompleteLevel)
             {
-                // 스테이지 언락
-                isClear = true;
+                beforeCompleteLevel = GameManager.Instance.CompleteLevel;
+
+                listView.CheckClear();
             }
         }
-
-        StartCoroutine(LoadStageList());
     }
 
     public override void Execute()
@@ -33,17 +42,8 @@ public class StageSelect : State
         }
     }
 
-    public override void Exit()
+    public override void Release()
     {
-    }
-
-    private IEnumerator LoadStageList()
-    {
-        while (!Database.Instance.StageLoaded)
-        {
-            yield return null;
-        }
-
-        listView.Init(Database.Instance.Stages, isClear);
+        // 종료 시 처리할 것들
     }
 }

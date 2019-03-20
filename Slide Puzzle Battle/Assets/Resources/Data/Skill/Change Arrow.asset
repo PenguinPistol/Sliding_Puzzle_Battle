@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c647146d6eaa7f1489cf77d0207df1e8, type: 3}
+  m_Name: Change Arrow
+  m_EditorClassIdentifier: 
+  name: "\uD65C \uD0C0\uC77C \uC0DD\uC131"
+  description: "\uBB34\uC791\uC704 \uC704\uCE58\uC5D0 \uC874\uC7AC\uD558\uB294 \uC77C\uBC18
+    \uD0C0\uC77C 1\uAC1C\uB97C \uC81C\uAC70\uD558\uACE0 \uD574\uB2F9 \uC704\uCE58\uC5D0
+    \uD2B9\uC218 \uACF5\uACA9 \uD0C0\uC77C ( \uD65C \uC18D\uC131 ) 1\uAC1C\uB97C \uC0DD\uC131\uD569\uB2C8\uB2E4."
+  sprite: {fileID: 21300000, guid: 243585c9d464334489c53f1e9a752bc8, type: 3}
+  unlockLevel: 15
+  cooldown: 10
+  value: 1
+  cost: 1
+  isCooldown: 0
+  changeType: 2
+  damage: 0

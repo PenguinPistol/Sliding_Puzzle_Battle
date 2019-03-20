@@ -9,14 +9,15 @@ public class FailedDialog : Dialog
     {
         // 스테이지 선택
         gameObject.SetActive(false);
-        StateController.Instance.ChangeState("StageSelect", false);
+
+        GameManager.Instance.LeaveLevel();
     }
 
     public override void NeatralAction()
     {
         // 다시하기
         gameObject.SetActive(false);
-        GameManager.Instance.RestartGame();
+        GameManager.Instance.RestartLevel();
     }
 
     public override void PositiveAction()
