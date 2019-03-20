@@ -10,17 +10,10 @@ public abstract class WeaponTile : Tile
     public int Damage { get { return damage; } }
     public Vector2[] AttackRanges { get { return attackRange; } }
 
-    public WeaponTile(Sprite _sprite, float _size, int _damage)
-        : base(_sprite, _size)
+    public WeaponTile(Sprite _sprite, float _size, int _index, int _damage)
+        : base(_sprite, _size, _index)
     {
         damage = _damage;
-    }
-
-    public WeaponTile(WeaponTile _other)
-        : base(_other)
-    {
-        attackRange = _other.attackRange;
-        damage = _other.damage;
     }
 
     public abstract IEnumerator Attack(List<Tile> _scopes);

@@ -1,78 +1,61 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using com.PlugStudio;
+using com.PlugStudio.Patterns;
 
-public class TileFactory
+public class TileFactory : Singleton<TileFactory>
 {
-    private Transform board;
-    private GameObject tilePrefab;
+    private const string SPRITE_NORMAL = "Sprites/Tiles/Tiles_Normal";
+    private const string SPRITE_SWORD = "Sprites/Tiles/Tiles_Sword";
+    private const string SPRITE_ARROW = "Sprites/Tiles/Tiles_Arrow";
+    private const string SPRITE_BOMB = "Sprites/Tiles/Tiles_Bomb";
+    private const string SPRITE_MONSTER = "Sprites/Tiles/Tiles_Monster";
 
-    public TileFactory(GameObject _prefab, Transform _board = null)
+    public enum TileType
     {
-        board = _board;
-        tilePrefab = _prefab;
+        Normal, Sword, Arrow, Bomb, Monster
     }
 
-    public Tile Create(TileData.TileType _type, float _rate, Vector2 _position, float _size, int _index)
+    private float tileSize;
+
+    public void Init(float _tileSize)
     {
-        TileData data = null;
-        Sprite icon;
-        /*
-        switch (_type)
+        tileSize = _tileSize;
+    }
+
+    public Tile Create(TileType _type, int _index, params object[] _data)
+    {
+        Tile tile = null;
+        Sprite sprite = null;
+
+        switch(_type)
         {
-            case TileData.TileType.Blank:
-                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Blank");
-                data = new NormalTile(_type, icon, _rate);
+            case TileType.Normal:
+                sprite = Resources.Load<Sprite>(SPRITE_NORMAL);
+                tile = new NormalTile(sprite, tileSize, _index);
                 break;
 
-            case TileData.TileType.Normal:
-                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Normal");
-                data = new NormalTile(_type, icon, _rate);
-                break;
-            case TileData.TileType.Monster:
-                if(_rate > 0)
-                {
-                    icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Monster");
-                    data = new MonsterTile(_type, icon, _rate);
-                }
-                else
-                {
-                    icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Normal");
-                    data = new NormalTile(_type, icon, _rate);
-                }
+            case TileType.Sword:
+                sprite = Resources.Load<Sprite>(SPRITE_SWORD);
+                tile = new SwordTile(sprite, tileSize, _index, GameConst.Damage_SwordTile);
                 break;
 
-            case TileData.TileType.Attack:
-                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Attack");
-                data = new SwordTile(_type, icon, _rate);
+            case TileType.Arrow:
+                sprite = Resources.Load<Sprite>(SPRITE_ARROW);
+                tile = new ArrowTile(sprite, tileSize, _index, GameConst.Damage_ArrowTile);
                 break;
 
-            case TileData.TileType.Bomb:
-                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Boom");
-                data = new BombTile(_type, icon, _rate);
+            case TileType.Bomb:
+                sprite = Resources.Load<Sprite>(SPRITE_BOMB);
+                tile = new BombTile(sprite, tileSize, _index, GameConst.Damage_BombTile, (int)_data[0]);
                 break;
 
-            case TileData.TileType.Arrow:
-                icon = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Arrow");
-                data = new ArrowTile(_type, icon, _rate);
+            case TileType.Monster:
+                sprite = Resources.Load<Sprite>(SPRITE_MONSTER);
+                tile = new MonsterTile(sprite, tileSize, _index, (int)_data[0]);
                 break;
-
         }
-
-        var newTile = Object.Instantiate(tilePrefab, board);
-        var tile = newTile.GetComponent<Tile>();
-
-        if(tile == null)
-        {
-            newTile.AddComponent<Tile>();
-        }
-
-        tile.InitData(data, _position, _size, _index);
 
         return tile;
-        */
-
-        return null;
     }
 }

@@ -1,18 +1,15 @@
 ﻿using UnityEngine;
+using System.Collections;
 using com.PlugStudio.Input;
 
 namespace com.PlugStudio.Patterns
 {
     public abstract class State : MonoBehaviour, ITouchObservable
     {
-        private StateController controller;
-        public StateController Controller { get { return controller; } set { controller = value; } }
-
-        public GameObject canvas;
-
-        public abstract void Init(params object[] datas);
+        public abstract IEnumerator Initialize(params object[] _data);
+        public abstract void FirstFrame();
         public abstract void Execute();
-        public abstract void Exit();
+        public abstract void Release();
 
         // ----------- InputObservable Interface ---------------
         public virtual void TouchBegan(Vector3 _touchPosition, int _index)    {}

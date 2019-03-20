@@ -23,6 +23,10 @@ public class StageData
     public List<int> monsters;
     // 레벨 인덱스
     public int level;
+    // 스테이지 제목
+    public string title;
+    // 스테이지 완료 체크
+    public bool isClear;
 
     public StageData()
     {

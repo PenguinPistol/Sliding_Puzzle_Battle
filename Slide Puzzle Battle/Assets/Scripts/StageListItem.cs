@@ -3,76 +3,71 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StageListItem : MonoBehaviour
+public class StageListItem : ListViewItem<StageData>
 {
-    private StageData data;
-    private int index;
-    private Animator animator;
-
+    public Animator animator;
     public List<Text> titleTexts;
-    
-    public StageData Data
-    {
-        get { return data; }
-    }
-    public int Id
-    {
-        get { return index; }
-    }
 
-    public void Init(int _index, StageData _data, string _title)
+    private bool isPlayAnimation;
+
+    public override void Init(StageData _data, int _index)
     {
-        index = _index;
         data = _data;
-        animator = GetComponent<Animator>();
+        index = _index;
+        isPlayAnimation = false;
 
-        switch(data.state)
+        int completeLevel = GameManager.Instance.CompleteLevel - 1;
+
+        switch (data.state)
         {
             case StageData.StageState.Lock:
+                if (completeLevel > index)
+                {
+                    data.state = StageData.StageState.Clear;
+                    StartCoroutine(PlayAnimation("Clear_Idle"));
+                }
+                else if (completeLevel == index)
+                {
+                    data.state = StageData.StageState.Unlock;
+                    StartCoroutine(PlayAnimation("Unlock_Idle"));
+                }
                 break;
             case StageData.StageState.Unlock:
-                animator.Play("ListItem_Unlock_Idle");
+                if (completeLevel > index)
+                {
+                    data.state = StageData.StageState.Clear;
+                    StartCoroutine(PlayAnimation("Clear_Idle"));
+                }
+                else
+                {
+                    StartCoroutine(PlayAnimation("Unlock_Idle"));
+                }
                 break;
             case StageData.StageState.Clear:
-                animator.Play("ListItem_Clear_Idle");
+                StartCoroutine(PlayAnimation("Clear_Idle"));
                 break;
         }
 
         for (int i = 0; i < titleTexts.Count; i++)
         {
-            titleTexts[i].text = _title;
+            titleTexts[i].text = data.title;
         }
     }
 
-    // 리스트 로드시 상태변경용
-    public void SetState(StageData.StageState _state)
+    private IEnumerator PlayAnimation(string _clipName)
     {
-        switch (_state)
+        if(isPlayAnimation == false)
         {
-            case StageData.StageState.Lock:
-                break;
-            case StageData.StageState.Unlock:
-                animator.Play("ListItem_Unlock_Idle");
-                break;
-            case StageData.StageState.Clear:
-                animator.Play("ListItem_Clear_Idle");
-                break;
+            isPlayAnimation = true;
+
+            animator.Play(_clipName);
+
+            while(animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            {
+                yield return null;
+            }
+
+            isPlayAnimation = false;
         }
-
-        data.state = _state;
-    }
-
-    public void UnlockLevel()
-    {
-        data.state = StageData.StageState.Unlock;
-
-        animator.Play("ListItem_Unlock");
-    }
-
-    public void CompleteLevel()
-    {
-        data.state = StageData.StageState.Clear;
-
-        animator.Play("ListItem_Clear");
     }
 }
