@@ -38,12 +38,17 @@ public class EnergyBoard : MonoBehaviour
 
     private void OnDestroy()
     {
-        sm.energyBoard = null;
+        //sm.energyBoard = null;
     }
 
     public void CheckCurrentEnergy(bool _isIncrease)
     {
         int index = sm.currentEnergy;
+
+        if(_isIncrease)
+        {
+            index -= 1;
+        }
 
         images[index].gameObject.SetActive(_isIncrease);
     }

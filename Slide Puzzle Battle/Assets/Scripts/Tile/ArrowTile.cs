@@ -46,15 +46,12 @@ public class ArrowTile : WeaponTile
 
             controller.animator.Play(aniName[index]);
 
-            float playTime = 0f;
-            float length = controller.animator.GetCurrentAnimatorStateInfo(0).length;
+            var length = controller.animator.GetCurrentAnimatorStateInfo(0).length;
+            var time = 0f;
 
-            while (playTime < length)
+            while (time < length)
             {
-                playTime += Time.deltaTime;
-
-                // animation event 써서 파티클 생성하기 -> 보류
-
+                time += Time.deltaTime;
                 yield return null;
             }
 

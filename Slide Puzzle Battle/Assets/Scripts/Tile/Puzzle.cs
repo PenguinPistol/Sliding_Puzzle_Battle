@@ -94,11 +94,9 @@ public class Puzzle : MonoBehaviour
     {
         for (int i = 0; i < tiles.Count; i++)
         {
-            if(GameManager.Instance.IsPause)
+            while(GameManager.Instance.IsPause)
             {
                 yield return null;
-                i--;
-                continue;
             }
 
             int index1 = i;
@@ -145,6 +143,11 @@ public class Puzzle : MonoBehaviour
         {
             for (int i = 0; i < tiles.Count; i++)
             {
+                while (GameManager.Instance.IsPause)
+                {
+                    yield return null;
+                }
+
                 tiles[i].gameObject.SetActive(true);
                 tiles[i].PlayAnimation(_animationName);
                 yield return new WaitForSeconds(TILE_CREATE_DELAY);
@@ -245,18 +248,17 @@ public class Puzzle : MonoBehaviour
 
         isAttack = true;
 
-        attackCoroutine = Attack();
-        StartCoroutine(attackCoroutine);
+        StartCoroutine(Attack());
     }
 
     public IEnumerator Attack()
     {
+        GameManager.Instance.ChangeStae(GameManager.PlayState.Attack);
+
         while(isMoved)
         {
             yield return null;
         }
-
-        GameManager.Instance.ChangeStae(GameManager.PlayState.Attack);
 
         var weapons = GetWeaponTiles();
 
@@ -293,7 +295,6 @@ public class Puzzle : MonoBehaviour
                     {
                         scopes.Add(tile.data);
                     }
-
                 }
             }
 
@@ -305,22 +306,38 @@ public class Puzzle : MonoBehaviour
             if (currentAttackLimit == 0)
             {
                 GameManager.Instance.FinishGame(CheckMonsterCount());
-                StopCoroutine(attackCoroutine);
+                //StopCoroutine(attackCoroutine);
+            }
+            else if(CheckMonsterCount())
+            {
+                GameManager.Instance.FinishGame(true);
+            }
+            else
+            {
+                yield return Shuffle("Tile_Respawn");
+
+                if (GameManager.Instance.IsPause == false)
+                {
+                    GameManager.Instance.ChangeStae(GameManager.PlayState.Play);
+                }
+            }
+        }
+        else if (CheckMonsterCount())
+        {
+            GameManager.Instance.FinishGame(true);
+            //StopCoroutine(attackCoroutine);
+        }
+        else
+        {
+            yield return Shuffle("Tile_Respawn");
+
+            if (GameManager.Instance.IsPause == false)
+            {
+                GameManager.Instance.ChangeStae(GameManager.PlayState.Play);
             }
         }
 
-        if (CheckMonsterCount())
-        {
-            GameManager.Instance.FinishGame(true);
-            StopCoroutine(attackCoroutine);
-        }
 
-        yield return Shuffle("Tile_Respawn");
-
-        if(GameManager.Instance.IsPause == false)
-        {
-            GameManager.Instance.ChangeStae(GameManager.PlayState.Play);
-        }
 
         isAttack = false;
     }

@@ -65,6 +65,19 @@ public class GameManager : Singleton<GameManager>
         StateController.Instance.ChangeState("StageSelect", false);
     }
 
+    private void OnApplicationPause(bool pause)
+    {
+        if(pause)
+        {
+            db.SaveGameData();
+
+            if (isDelete)
+            {
+                PlayerPrefs.DeleteAll();
+            }
+        }
+    }
+
     private void OnApplicationQuit()
     {
         if(db != null)

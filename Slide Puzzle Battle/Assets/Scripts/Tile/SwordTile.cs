@@ -48,13 +48,12 @@ public class SwordTile : WeaponTile
 
             controller.animator.Play(aniName[index]);
 
-            float playTime = 0f;
-            float length = controller.animator.GetCurrentAnimatorStateInfo(0).length;
+            var length = controller.animator.GetCurrentAnimatorStateInfo(0).length;
+            var time = 0f;
 
-            while (playTime < length)
+            while (time < length)
             {
-                playTime += Time.deltaTime;
-
+                time += Time.deltaTime;
                 yield return null;
             }
 

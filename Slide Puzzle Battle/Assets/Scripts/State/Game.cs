@@ -59,18 +59,11 @@ public class Game : State
 
     public override void FirstFrame()
     {
-        if (stage.level == 1)
+        // 튜토리얼 체크
+        if (stage.level == 1 && GameManager.Instance.IsViewTutorial == false)
         {
-            if (GameManager.Instance.IsViewTutorial == false)
-            {
-                // 여기서 뷰튜토리얼 트루로 바꾸장
-                GameManager.Instance.IsViewTutorial = true;
-                GameManager.Instance.ShowTutorial();
-            }
-            else
-            {
-                GameManager.Instance.StartGame();
-            }
+            GameManager.Instance.IsViewTutorial = true;
+            GameManager.Instance.ShowTutorial();
         }
         else
         {
@@ -94,6 +87,10 @@ public class Game : State
         {
             // 스테이지 클리어
             GameManager.Instance.FinishGame(true);
+        }
+        else if(Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            SkillManager.Instance.AddEnergy();
         }
 
         attckLimitText.text = string.Format("{0}", puzzle.currentAttackLimit);

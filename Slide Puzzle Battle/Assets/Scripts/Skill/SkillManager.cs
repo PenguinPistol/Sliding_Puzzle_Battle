@@ -8,6 +8,7 @@ public class SkillManager : Singleton<SkillManager>
 {
     public List<Skill> skills;
     public EnergyBoard energyBoard;
+    public SkillDescriptionPopup descriptionPopup;
 
     public int currentEnergy;
     public float recoveryTime;
@@ -70,5 +71,27 @@ public class SkillManager : Singleton<SkillManager>
         {
             doRecovery = false;
         }
+    }
+
+    // 테스트용
+    public void AddEnergy()
+    {
+        if(currentEnergy >= GameConst.MaxEnergy-1)
+        {
+            return;
+        }
+
+        currentEnergy++;
+        energyBoard.CheckCurrentEnergy(true);
+    }
+
+    public void ShowDescription(Skill _data, Vector3 _position)
+    {
+        Vector3 position = descriptionPopup.transform.localPosition;
+
+        position.x = _position.x / 2;
+
+        descriptionPopup.transform.localPosition = position;
+        descriptionPopup.Show(_data.description);
     }
 }

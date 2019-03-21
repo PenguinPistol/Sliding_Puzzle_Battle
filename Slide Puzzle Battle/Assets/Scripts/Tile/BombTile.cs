@@ -14,13 +14,18 @@ public class BombTile : WeaponTile
 
         for (int i = 0; i < attackRange.Length; i++)
         {
-            attackRange[i] = direction[i % 4] * ((i / _boardSize) + 1);
+            var dir = direction[i % 4];
+            var num = ((i / 4) + 1);
+
+            attackRange[i] = direction[i % 4] * ((i / 4) + 1);
         }
     }
 
     public override IEnumerator Attack(List<Tile> _scopes)
     {
         controller.animator.Play("Tile_Attack_Bomb");
+
+        int count = 0;
 
         for (int i = 0; i < _scopes.Count; i++)
         {
@@ -33,6 +38,7 @@ public class BombTile : WeaponTile
 
             if(_scopes[i].GetType().Equals(typeof(MonsterTile)))
             {
+                count++;
                 ((MonsterTile)_scopes[i]).OnDamaged(1);
             }
 
@@ -44,12 +50,23 @@ public class BombTile : WeaponTile
             while (playTime < delay)
             {
                 playTime += Time.deltaTime;
-
-                // animation event 써서 파티클 생성하기 -> 보류
-
                 yield return null;
             }
+
+            if(i == _scopes.Count - 1)
+            {
+                length = _scopes[i].controller.animator.GetCurrentAnimatorStateInfo(0).length;
+                playTime = 0f;
+
+                while (playTime < length)
+                {
+                    playTime += Time.deltaTime;
+                    yield return null;
+                }
+            }
         }
+
+        Debug.Log("count : " + count);
     }
 
     public override void Execute()

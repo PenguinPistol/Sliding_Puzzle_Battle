@@ -392,7 +392,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 113.599976}
+  m_AnchoredPosition: {x: 0, y: 113.59985}
   m_SizeDelta: {x: 540, y: -744.5}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &538104956
@@ -520,7 +520,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 113.599976}
+  m_AnchoredPosition: {x: 0, y: 113.59985}
   m_SizeDelta: {x: 540, y: -744.5}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &545419373
@@ -961,7 +961,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1186536480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1177,6 +1177,7 @@ MonoBehaviour:
   - key: Sword2
     value: {fileID: 153363219652557650, guid: 1b507b263a5991b4795588a09d0e0e04, type: 3}
   size: 2
+  createdParticles: []
 --- !u!4 &1443675193
 Transform:
   m_ObjectHideFlags: 0
@@ -1506,6 +1507,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9929a0a88ae654f46845a3f48179bb7b, type: 2}
   - {fileID: 11400000, guid: 929d92cdd75399b4eba79974a3005353, type: 2}
   energyBoard: {fileID: 0}
+  descriptionPopup: {fileID: 0}
   currentEnergy: 0
   recoveryTime: 0
   elapseRecoveryTime: 0
