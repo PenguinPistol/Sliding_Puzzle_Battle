@@ -14,6 +14,7 @@ public class GameManager : Singleton<GameManager>
     private Database db;
     private PlayState state;
     private int currentLevel;
+    private PlayState beforeState;
 
     public GameObject tutorial;
 
@@ -33,7 +34,6 @@ public class GameManager : Singleton<GameManager>
         get { return db.GameData.viewTutorial; }
         set { db.GameData.viewTutorial = value; }
     }
-
 
     [HideInInspector]
     public Puzzle currentPuzzle;
@@ -97,15 +97,17 @@ public class GameManager : Singleton<GameManager>
 
     public void PauseGame(bool _isPause)
     {
-        if(_isPause)
+
+        if (_isPause)
         {
             // pause
+            beforeState = state;
             ChangeStae(PlayState.Pause);
         }
         else
         {
             // resume
-            ChangeStae(PlayState.Play);
+            ChangeStae(beforeState);
         }
     }
 
