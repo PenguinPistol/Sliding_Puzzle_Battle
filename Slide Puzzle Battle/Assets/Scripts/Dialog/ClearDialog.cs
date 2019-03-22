@@ -9,15 +9,17 @@ public class ClearDialog : Dialog
     {
         // 스테이지 선택
         gameObject.SetActive(false);
+
         // 스테이지 클리어
-        StateController.Instance.ChangeState("StageSelect", true);
+        GameManager.Instance.LeaveLevel();
     }
 
     public override void NeatralAction()
     {
         // 다시하기
         gameObject.SetActive(false);
-        GameManager.Instance.RestartGame();
+
+        GameManager.Instance.RestartLevel();
     }
 
     public override void PositiveAction()
@@ -25,17 +27,6 @@ public class ClearDialog : Dialog
         // 다음 스테이지
         gameObject.SetActive(false);
 
-        if(GameManager.Instance.MaxLevel == GameManager.Instance.completeLevel)
-        {
-            StateController.Instance.ChangeState("StageSelect", true);
-        }
-        else
-        {
-            StateController.Instance.ChangeState("Game", GameManager.Instance.completeLevel);
-
-            GameManager.Instance.completeLevel++;
-        }
-
-       
+        GameManager.Instance.PlayNextLevel();
     }
 }

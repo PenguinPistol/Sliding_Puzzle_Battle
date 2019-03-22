@@ -2,20 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NormalTile : TileData
+public class NormalTile : Tile
 {
-    public NormalTile(TileType _type, Sprite _icon, float _rate)
-        : base(_type, _icon, _rate)
-    {
-        _icon = null;
-        _rate = 0;
-    }
-
-    public override void AfterAttack()
-    {
-    }
-
-    public override void Attack(Vector2 _position, Vector2 _direction)
+    public NormalTile(Sprite _sprite, float _size, int _index)
+        : base(_sprite, _size, _index)
     {
     }
 

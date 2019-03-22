@@ -1,393 +1,388 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
-public class Puzzle
+public class Puzzle : MonoBehaviour
 {
-    private const float TILE_CREATE_DELAY = 0.05f;
+    private const float TILE_CREATE_DELAY = 0.1f;
     private const float TILE_SPACING = 0f;
     private const float BOARD_WIDTH = 1000f;
-
-    public enum Type
-    {
-        Normal, Time, Count, Both
-    }
-
-    private Type type;
-    private int boardSize;
-    private List<Tile> tiles;
-    private StageData stage;
-    private Transform board;
+    private const float TILE_SPRITE_WIDTH = 200f;
 
     private Vector2 startPos;
     private float tileSize;
     private int blankIndex;
 
-    public Type PuzzleType { get { return type; } }
-    public int Size { get { return boardSize; } }
+    public List<TileController> tiles;
+    private StageData stage;
+    private TileFactory factory;
+    private int currentMonsterCount;
+    public int currentAttackLimit;
 
-    private TileController tileControllerPrefab;
+    public TileController tilePrefab;
+    public bool createComplete;
+    public bool isMoved;
+    public bool isAttack;
+    public bool isAttackLimit;
 
-    public Puzzle(StageData _stage, Transform _board)
+    private IEnumerator attackCoroutine;
+
+    public IEnumerator Create(StageData _stage)
     {
+        tiles = new List<TileController>();
         stage = _stage;
-        boardSize = stage.BoardSize;
-        board = _board;
-    }
-
-    public void Clean()
-    {
-        //전부 지우기
-
-        for (int i = 0; i < board.childCount; i++)
-        {
-            Object.Destroy(board.GetChild(i).gameObject);
-        }
-
-        tiles.Clear();
-    }
-
-    public IEnumerator CreatePuzzle(TileController _tileController)
-    {
-        tiles = new List<Tile>();
-        tileSize = (BOARD_WIDTH / stage.BoardSize) / 200f;
+        tileSize = (BOARD_WIDTH / _stage.BoardSize) / TILE_SPRITE_WIDTH;
         startPos = new Vector2
         (
-             -tileSize * (stage.BoardSize - 1)
-            , tileSize * (stage.BoardSize - 1)
+             -tileSize * (_stage.BoardSize - 1)
+            , tileSize * (_stage.BoardSize - 1)
         );
-        tileControllerPrefab = _tileController;
-        // 1000 / 
+        createComplete = false;
 
-        CreateTiles();
-        Shuffle();
+        factory = TileFactory.Instance;
+        factory.Init(tileSize);
 
-        for (int i = 0; i < tiles.Count; i++)
-        {
-            var position = CoordToPosition(IndexToCoord(i));
-            var scale = new Vector3(tileSize, tileSize, 1f);
+        currentMonsterCount = _stage.MonsterCount;
 
-            var newTile = Object.Instantiate(_tileController, board);
-            newTile.SetData(tiles[i], position, scale);
+        CreateTiles(_stage);
+        yield return StartCoroutine(Shuffle("Tile_Create"));
 
-            yield return new WaitForSeconds(TILE_CREATE_DELAY);
-        }
-
-        // 빈타일 생성
         blankIndex = tiles.Count;
-        tiles.Add(null);
 
+        GameManager.Instance.currentPuzzle = this;
 
-        GameManager.Instance.StartCoroutine(GameManager.Instance.Game());
+        yield return null;
     }
 
-    private void CreateTiles()
+    private void CreateTiles(StageData _stage)
     {
-        int allTileCount = (stage.BoardSize * stage.BoardSize) - 1;
-        int monsterCount = stage.MonsterCount;
-        int swordCount = monsterCount;
+        int tileCount = (_stage.BoardSize * _stage.BoardSize) - 1;
+        int swordCount = _stage.MonsterCount * GameConst.SwordTileRatio;
 
-        for (int i = 0; i < allTileCount; i++)
+        for (int i = 0; i < tileCount; i++)
         {
-            Sprite sprite = null;
+            var position = CoordToPosition(IndexToCoord(i));
+            Vector3 scale = Vector3.one * tileSize;
+            scale.z = 1f;
+
             Tile tile = null;
 
-            if (i < monsterCount)
+            if(i < currentMonsterCount)
             {
-                // 몬스터 타일 생성
-                sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Monster");
-                tile = new MonsterTile(sprite, tileSize, stage.monsters[i]);
+                tile = factory.Create(TileFactory.TileType.Monster, i, _stage.monsters[i]);
             }
-            else if (i - monsterCount < swordCount)
+            else if(i - _stage.MonsterCount < swordCount)
             {
-                // 칼 타일 생성
-                sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Sword");
-                tile = new SwordTile(sprite, tileSize, 1);
+                tile = factory.Create(TileFactory.TileType.Sword, i);
+                //tile = factory.Create(TileFactory.TileType.Bomb, i, stage.BoardSize);
             }
             else
             {
-                // 일반 타일 생성
-                sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Normal");
-                tile = new Tile(sprite, tileSize);
+                tile = factory.Create(TileFactory.TileType.Normal, i);
             }
 
-            if (tile != null)
-            {
-                tile.index = i;
-                tiles.Add(tile);
-            }
+            TileController tc = Instantiate(tilePrefab, transform);
+            tc.gameObject.SetActive(false);
+            tc.SetData(tile, position, scale);
+
+            tiles.Add(tc);
         }
     }
 
-    public IEnumerator Relocation()
+    private IEnumerator Shuffle(string _animationName)
     {
-        var blankTile = tiles.Find(x => x == null);
-        tiles.Remove(blankTile);
-        
         for (int i = 0; i < tiles.Count; i++)
         {
-            if(tiles[i].GetType().Equals(typeof(MonsterTile)))
+            while(GameManager.Instance.IsPause)
             {
-                if (((MonsterTile)tiles[i]).IsDead)
-                {
-                    var controller = tiles[i].controller;
-                    var sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Normal");
-                    tiles[i] = new Tile(sprite, tileSize);
-                    tiles[i].controller = controller;
-                }
+                yield return null;
             }
-            tiles[i].controller.gameObject.SetActive(false);
-        }
 
-        // 재배치
-        Shuffle();
-
-        for (int i = 0; i < tiles.Count; i++)
-        {
-            var position = CoordToPosition(IndexToCoord(i));
-            var scale = new Vector3(tileSize, tileSize, 1f);
-
-            tiles[i].controller.gameObject.SetActive(true);
-            tiles[i].controller.SetData(tiles[i], position, scale);
-            tiles[i].controller.animator.Play("Tile_Respawn");
-
-            yield return new WaitForSeconds(TILE_CREATE_DELAY);
-        }
-
-        blankIndex = tiles.Count;
-        tiles.Add(null);
-    }
-
-    private void Shuffle()
-    {
-        for (int i = 0; i < tiles.Count; i++)
-        {
             int index1 = i;
             int index2 = Random.Range(0, tiles.Count);
-            var coord1 = IndexToCoord(index1);
-            var coord2 = IndexToCoord(index2);
+            var coord1 = IndexToCoord(tiles[index1].Index);
+            var coord2 = IndexToCoord(tiles[index2].Index);
 
-            bool isEdge1 =
-                (coord1.x == 0 || coord1.y == 0  || coord1.x == boardSize - 1 || coord1.y == boardSize - 1);
+            bool isEdge1 = (coord1.x == 0 || coord1.y == 0 || coord1.x == stage.BoardSize - 1 || coord1.y == stage.BoardSize - 1);
 
-            bool isEdge2 =
-                (coord2.x == 0 || coord2.y == 0 || coord2.x == boardSize - 1 || coord2.y == boardSize - 1);
+            bool isEdge2 = (coord2.x == 0 || coord2.y == 0 || coord2.x == stage.BoardSize - 1 || coord2.y == stage.BoardSize - 1);
 
-            if ((tiles[index1].GetType().Equals(typeof(SwordTile)) && !isEdge2)
-                || (tiles[index2].GetType().Equals(typeof(SwordTile)) && !isEdge1)
-                || (tiles[index1].GetType().Equals(typeof(MonsterTile)) && isEdge2)
-                || (tiles[index2].GetType().Equals(typeof(MonsterTile)) && isEdge1))
+
+            if ((tiles[index1].Type.Equals(typeof(SwordTile)) && !isEdge2)
+                || (tiles[index2].Type.Equals(typeof(SwordTile)) && !isEdge1)
+                || (tiles[index1].Type.Equals(typeof(MonsterTile)) && isEdge2)
+                || (tiles[index2].Type.Equals(typeof(MonsterTile)) && isEdge1))
             {
                 // 다시 선택
                 i--;
                 continue;
             }
 
-            var temp = tiles[index1];
 
-            tiles[index1] = tiles[index2];
-            tiles[index1].index = index1;
+            var beforeTile = tiles[index1];
+            var afterTile = tiles[index2];
 
-            tiles[index2] = temp;
-            tiles[index2].index = index2;
+            var tempIndex = beforeTile.Index;
+            beforeTile.data.index = afterTile.Index;
+            afterTile.data.index = tempIndex;
+            
+            beforeTile.transform.localPosition = CoordToPosition(IndexToCoord(beforeTile.Index));
+
+            afterTile.transform.localPosition = CoordToPosition(IndexToCoord(afterTile.Index));
+
+            beforeTile.gameObject.SetActive(false);
         }
-    }
 
-    public bool isMoved = false;
-
-    public void MoveTile(int _selectIndex)
-    {
-        if(isMoved)
+        tiles.Sort(delegate (TileController a, TileController b)
         {
-            return;
+            return a.Index.CompareTo(b.Index);
+        });
+
+        if (string.IsNullOrEmpty(_animationName) == false)
+        {
+            for (int i = 0; i < tiles.Count; i++)
+            {
+                while (GameManager.Instance.IsPause)
+                {
+                    yield return null;
+                }
+
+                tiles[i].gameObject.SetActive(true);
+                tiles[i].PlayAnimation(_animationName);
+                yield return new WaitForSeconds(TILE_CREATE_DELAY);
+            }
         }
+
+        createComplete = true;
+    }
+    
+    public IEnumerator MoveTile(int _selectIndex)
+    {
         isMoved = true;
 
-        GameManager.Instance.StartCoroutine(MoveTileRoutine(_selectIndex));
-    }
+        var selectCoord = IndexToCoord(_selectIndex);
+        var blankCoord = IndexToCoord(blankIndex);
+        var magnitude = (selectCoord - blankCoord).sqrMagnitude;
 
-    private IEnumerator MoveTileRoutine(int _selectIndex)
-    {
-        float time = Time.time;
-
-        int sx = _selectIndex % boardSize;
-        int sy = _selectIndex / boardSize;
-
-        int bx = blankIndex % boardSize;
-        int by = blankIndex / boardSize;
-
-        if (sx == bx)
+        if (magnitude == 1)
         {
-            for (int i = Mathf.Abs(by - sy) - 1; i >= 0; i--)
-            {
-                Vector3 dir = Vector3.up;
-                int index = _selectIndex - boardSize * i;
-                int change = _selectIndex - boardSize * (i + 1);
+            var selectTile = tiles.Find(x => x.Index == _selectIndex);
+            Vector3 direction = blankCoord - selectCoord;
+            direction.y *= -1;
+            var target = selectTile.transform.localPosition + direction;
 
-                if (sy < by)
-                {
-                    index = _selectIndex + boardSize * i;
-                    dir = Vector3.down;
-                    change = _selectIndex + boardSize * (i + 1);
-                }
+            //tiles[_selectIndex].Move(target);
+            yield return selectTile.MoveCoroutine(direction);
 
-                var tile = tiles.Find(x => x.index == index);
+            selectTile.data.index = blankIndex;
 
-                tile.controller.Move(dir);
-                tile.index = change;
-
-                yield return new WaitForSeconds(0.01f);
-            }
-
-            blankIndex = _selectIndex;
-        }
-        else if (sy == by)
-        {
-            for (int i = Mathf.Abs(bx - sx) - 1; i >= 0; i--)
-            {
-                Vector3 dir = Vector3.left;
-                int index = _selectIndex - i;
-                int change = _selectIndex - (i + 1);
-
-                if (sx < bx)
-                {
-                    dir = Vector3.right;
-                    index = _selectIndex + i;
-                    change = _selectIndex + (i + 1);
-                }
-
-                var tile = tiles.Find(x => x.index == index);
-
-                tile.controller.Move(dir);
-                tile.index = change;
-
-                yield return new WaitForSeconds(0.01f);
-            }
-
-            blankIndex = _selectIndex;
+            blankIndex = _selectIndex; 
         }
 
-        //Debug.Log("time : " + (Time.time - time));
         isMoved = false;
     }
 
-    public List<WeaponTile> GetWeaponTiles()
+    public void Clear()
     {
-        List<WeaponTile> weapons = new List<WeaponTile>();
-
-        for (int i = 0; i < tiles.Count - 1; i++)
+        for (int i = 0; i < tiles.Count; i++)
         {
-            if (tiles[i].GetType().IsSubclassOf(typeof(WeaponTile)))
+            var tile = tiles[i];
+            Destroy(tile.gameObject);
+        }
+
+        tiles.Clear();
+        tiles = null;
+        GameManager.Instance.currentPuzzle = null;
+        factory = null;
+    }
+
+    private bool CheckMonsterCount()
+    {
+        var monsters = tiles.FindAll(x => x.data.GetType().Equals(typeof(MonsterTile)));
+        
+        for (int i = 0; i < monsters.Count; i++)
+        {
+            var monster = monsters[i];
+            var data = (MonsterTile)monster.data;
+
+            if (data.IsDead)
             {
-                weapons.Add((WeaponTile)tiles[i]);
+                var transform = monster.transform;
+
+                currentMonsterCount--;
+
+                ChangeTileType(monster, TileFactory.TileType.Normal);
+            }
+        }
+
+        return (currentMonsterCount <= 0);
+    }
+
+    public List<TileController> GetWeaponTiles()
+    {
+        var weapons = new List<TileController>();
+
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            if(tiles[i] == null)
+            {
+                continue;
+            }
+
+            if (tiles[i].data.GetType().IsSubclassOf(typeof(WeaponTile)))
+            {
+                weapons.Add(tiles[i]);
             }
         }
 
         return weapons;
     }
-
-    public List<T> GetTiles<T>()
-        where T : Tile
+    
+    public void StartAttack()
     {
-        List<T> find = new List<T>();
-
-        for (int i = 0; i < tiles.Count - 1; i++)
+        if(isAttack)
         {
-            if (tiles[i].GetType().Equals(typeof(T)))
-            {
-                find.Add((T)tiles[i]);
-            }
+            return;
         }
 
-        return find;
-    }
+        isAttack = true;
 
-    public bool isAttacked;
+        StartCoroutine(Attack());
+    }
 
     public IEnumerator Attack()
     {
-        bool finished = false;
-        isAttacked = true;
+        GameManager.Instance.ChangeStae(GameManager.PlayState.Attack);
+
+        while(isMoved)
+        {
+            yield return null;
+        }
 
         var weapons = GetWeaponTiles();
-        
+
+        if(isAttackLimit)
+        {
+            currentAttackLimit--;
+        }
+
         foreach (var weapon in weapons)
         {
-            List<Tile> scopes = new List<Tile>();
-
-            foreach (var range in weapon.AttackRanges)
+            while(GameManager.Instance.IsPause)
             {
-                Vector2 targetCoord = IndexToCoord(weapon.index) + range;
-                int targetIndex = CoordToIndex(targetCoord);
-
-                scopes.Add(tiles.Find(x => x != null && x.index == targetIndex));
+                yield return null;
             }
 
-            if(GameManager.Instance.State != GameManager.PlayState.Play)
+            var scopes = new List<Tile>();
+            var attackRange = ((WeaponTile)weapon.data).AttackRanges;
+
+            foreach (var range in attackRange)
             {
-                finished = true;
-                break;
+                Vector2 targetCoord = IndexToCoord(weapon.Index) + range;
+
+                if (0 <= targetCoord.x && targetCoord.x < stage.BoardSize
+                    && 0 <= targetCoord.y && targetCoord.y < stage.BoardSize)
+                {
+                    int targetIndex = CoordToIndex(targetCoord);
+                    var tile = tiles.Find(x => x.Index == targetIndex);
+
+                    if (tile == null)
+                    {
+                        scopes.Add(null);
+                    }
+                    else
+                    {
+                        scopes.Add(tile.data);
+                    }
+                }
             }
 
-            yield return weapon.controller.StartCoroutine(weapon.Attack(scopes));
+            yield return StartCoroutine(((WeaponTile)weapon.data).Attack(scopes));
         }
 
-        if(finished == false)
+        if (isAttackLimit)
         {
-            yield return Relocation();
+            if (currentAttackLimit == 0)
+            {
+                GameManager.Instance.FinishGame(CheckMonsterCount());
+                //StopCoroutine(attackCoroutine);
+            }
+            else if(CheckMonsterCount())
+            {
+                GameManager.Instance.FinishGame(true);
+            }
+            else
+            {
+                yield return Shuffle("Tile_Respawn");
+
+                if (GameManager.Instance.IsPause == false)
+                {
+                    GameManager.Instance.ChangeStae(GameManager.PlayState.Play);
+                }
+            }
+        }
+        else if (CheckMonsterCount())
+        {
+            GameManager.Instance.FinishGame(true);
+            //StopCoroutine(attackCoroutine);
+        }
+        else
+        {
+            yield return Shuffle("Tile_Respawn");
+
+            if (GameManager.Instance.IsPause == false)
+            {
+                GameManager.Instance.ChangeStae(GameManager.PlayState.Play);
+            }
         }
 
-        isAttacked = false;
+
+
+        isAttack = false;
     }
 
-    public void ChangeTile(System.Type _type)
+    public TileController GetRandomTile()
     {
-        var tiles = GetTiles<Tile>();
-        int index = Random.Range(0, tiles.Count);
+        var normalTiles = tiles.FindAll(x => x.Type.Equals(typeof(NormalTile)));
 
-        WeaponTile newTile = null;
-        Sprite sprite = null;
+        int randomIndex = Random.Range(0, normalTiles.Count);
 
-        if(_type.Equals(typeof(SwordTile)))
-        {
-            sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Sword");
-            newTile = new SwordTile(sprite, tileSize, 1);
-        }
-        else if (_type.Equals(typeof(ArrowTile)))
-        {
-            sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Arrow");
-            newTile = new ArrowTile(sprite, tileSize, 1);
-        }
-        else if (_type.Equals(typeof(BombTile)))
-        {
-            sprite = Resources.Load<Sprite>("Sprites/Tiles/Tiles_Bomb");
-            newTile = new BombTile(sprite, tileSize, 1, boardSize);
-        }
-        newTile.index = tiles[index].index;
-
-        var position = CoordToPosition(IndexToCoord(newTile.index));
-        var scale = new Vector3(tileSize, tileSize, 1f);
-
-        tiles[index].controller.SetData(newTile, position, scale);
-
-        int newTileIndex = this.tiles.Find(x => x.index == tiles[index].index).index;
-        this.tiles[newTileIndex] = newTile;
+        return normalTiles[randomIndex];
     }
 
-    public Vector2 IndexToCoord(int _index)
+    public void ChangeTileType(TileController _tile, TileFactory.TileType _changedType, params object[] _params)
     {
-        int x = _index == 0 ? 0 : _index % boardSize;
-        int y = _index == 0 ? 0 : _index / boardSize;
+        var transform = _tile.transform;
+        var newTileData = factory.Create(_changedType, _tile.Index, _params);
+
+        int listIndex = tiles.FindIndex(x => x.Index == _tile.Index);
+
+        Destroy(_tile.gameObject);
+        tiles.RemoveAt(listIndex);
+
+        var newTile = Instantiate(tilePrefab, this.transform);
+        newTile.name = "new tile";
+        newTile.SetData(newTileData, transform.localPosition, transform.localScale);
+        tiles.Insert(listIndex, newTile);
+    }
+
+    // =============================== 좌표관련 ===============================
+
+    private Vector2 IndexToCoord(int _index)
+    {
+        int x = _index == 0 ? 0 : _index % stage.BoardSize;
+        int y = _index == 0 ? 0 : _index / stage.BoardSize;
 
         return new Vector2(x, y);
     }
 
-    public int CoordToIndex(Vector2 _coord)
+    private int CoordToIndex(Vector2 _coord)
     {
         return (int)(_coord.y * stage.BoardSize + _coord.x);
     }
 
-    public Vector2 CoordToPosition(Vector2 _coord)
+    private Vector2 CoordToPosition(Vector2 _coord)
     {
         return new Vector2(startPos.x + (tileSize * 2f) * _coord.x, startPos.y - (tileSize * 2f) * _coord.y);
     }

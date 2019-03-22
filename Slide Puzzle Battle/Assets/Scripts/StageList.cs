@@ -6,107 +6,80 @@ using com.PlugStudio.Patterns;
 
 public class StageList : ListView<StageListItem, StageData>
 {
-    public override void Init(List<StageData> _items)
+    public override IEnumerator Init(List<StageData> _items)
     {
-        if (items.Count != _items.Count)
+        float time = Time.time;
+
+        for (int i = 0; i < _items.Count; i++)
         {
-            StartCoroutine(InitView(_items, false));
+            var itemView = Instantiate(listItemPrefab, contentView);
+
+            itemView.Init(_items[i], i);
+
+            var click = itemView.GetComponent<Button>();
+
+            if(click == null)
+            {
+                click = itemView.gameObject.AddComponent<Button>();
+            }
+
+            click.onClick.AddListener(() =>
+            {
+                SelectItem(itemView.Index);
+            });
+
+            items.Add(itemView);
+
+            yield return null;
         }
-        else
-        {
-            SetState();
-        }
-    }
 
-    public void Init(List<StageData> _items, bool _isClear)
-    {
-        StartCoroutine(InitView(_items, _isClear));
-    }
+        time = Time.time - time;
 
-    private void UnlockNextLevel()
-    {
-        for (int i = 0; i < GameManager.Instance.completeLevel - 1; i++)
-        {
-            items[i].SetState(StageData.StageState.Clear);
-        }
-
-        items[GameManager.Instance.completeLevel - 1].CompleteLevel();
-
-        items[GameManager.Instance.completeLevel].UnlockLevel();
-
-        GameManager.Instance.completeLevel++;
+        Debug.Log("listview initialized time : " + time);
     }
 
     public override void SelectItem(int _index)
     {
         if(items[_index].Data.state.Equals(StageData.StageState.Lock))
         {
+            Debug.Log("stage is lock!!");
             return;
         }
 
-        StateController.Instance.ChangeState("Game", _index);
+        GameManager.Instance.LoadLevel(_index);
     }
 
-    private IEnumerator InitView(List<StageData> _items, bool _isClear)
+    public void CheckClear()
     {
-        float time = Time.time;
+        int completeLevel = GameManager.Instance.CompleteLevel;
 
-        // 리스트 초기화
-        for (int i = 0; i < items.Count; i++)
+        if (completeLevel == 0)
         {
-            Destroy(items[i].gameObject);
-            yield return null;
+            return;
         }
-        items.Clear();
 
-        time = Time.time - time;
-
-        time = Time.time;
-
-        for (int i = 0; i < _items.Count; i++)
+        if(completeLevel == GameManager.Instance.Stages.Count - 1)
         {
-            var item = Instantiate(listItemPrefab, contentView);
-
-            var listItem = item.GetComponent<StageListItem>();
-
-            if (listItem == null)
+            for (int i = 0; i < GameManager.Instance.Stages.Count; i++)
             {
-                listItem = item.AddComponent<StageListItem>();
+                items[i].Data.state = StageData.StageState.Clear;
+                items[i].animator.Play("Clear_Idle");
             }
-            listItem.Init(i, _items[i], "Stage " + (i+1));
-
-            var click = item.GetComponent<Button>();
-
-            if (click == null)
+        }
+        else
+        {
+            for (int i = 0; i < completeLevel - 1; i++)
             {
-                click = item.AddComponent<Button>();
+                items[i].Data.state = StageData.StageState.Clear;
+                items[i].animator.Play("Clear_Idle");
             }
 
-            click.onClick.AddListener(() =>
-            {
-                SelectItem(listItem.Id);
-            });
+            items[completeLevel-1].Data.state = StageData.StageState.Clear;
+            items[completeLevel-1].animator.Play("Clear");
 
-            items.Add(listItem);
-
-            yield return null;
+            items[completeLevel].Data.state = StageData.StageState.Unlock;
+            items[completeLevel].animator.Play("Unlock");
         }
 
-        time = Time.time - time;
-
-        //Debug.Log("걸린시간 : " + time);
-
-        if(_isClear)
-        {
-            UnlockNextLevel();
-        }
-    }
-
-    private void SetState()
-    {
-        for (int i = 0; i < items.Count; i++)
-        {
-            items[i].SetState(items[i].Data.state);
-        }
     }
 }

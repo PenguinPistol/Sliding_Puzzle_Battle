@@ -1,80 +1,40 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
-public class Skill
+public abstract class Skill : ScriptableObject
 {
-    public enum Type
-    {
-        SKILL_CHANGE_TILE_TYPE , SKILL_REINFORCE, SKILL_GENARAL
-    }
-
-    public string skillType;
-    public string name;
+    public new string name;
     public string description;
+    public Sprite sprite;
     public int unlockLevel;
-    public float coolDown;
+    public float cooldown;
     public float value;
     public int cost;
+    public bool isCooldown;
 
-    private bool isCoolDown;
+    private float currentCooldown = 0;
+    public float CurrentCooldown { get { return currentCooldown; } }
 
-    public void Activate()
+    public abstract void Activate(params object[] _params);
+
+    public IEnumerator Cooldown(GameObject _cooldownObject, Text _cooldownText)
     {
-        /*
-        if(isCoolDown || unlockLevel > GameManager.Instance.completeLevel)
+        currentCooldown = cooldown;
+
+        isCooldown = true;
+        _cooldownObject.SetActive(true);
+
+        while (currentCooldown > 0)
         {
-            return;
-        }
+            currentCooldown -= Time.deltaTime;
 
-        switch((Type)System.Enum.Parse(typeof(Type), skillType))
-        {
-            case Type.SKILL_CHANGE_TILE_TYPE:
-                // 타일변경
-                switch((int)value)
-                {
-                    case 1:
-                        GameManager.Instance.ChangeTile(typeof(SwordTile));
-                        Debug.Log("검 타일 생성");
-                        break;
-                    case 2:
-                        GameManager.Instance.ChangeTile(typeof(ArrowTile));
-                        Debug.Log("활 타일 생성");
-                        break;
-                    case 3:
-                        GameManager.Instance.ChangeTile(typeof(BombTile));
-                        Debug.Log("폭탄 타일 생성");
-                        break;
-                }
-                break;
-            case Type.SKILL_REINFORCE:
-                GameManager.Instance.reinforceScope = (int)value;
-                Debug.Log("타일 강화");
-                // 타일강화
-                break;
-            case Type.SKILL_GENARAL:
-                // 그 외 스킬
-                Debug.Log("일반 스킬 사용");
-                break;
-        }
-
-        // 쿨다운 사용안함
-        //GameManager.Instance.StartCoroutine(CoolDown());
-        */
-    }
-
-    public IEnumerator CoolDown()
-    {
-        float 시간 = 0f;
-
-        isCoolDown = true;
-
-        while (시간 <= coolDown)
-        {
-            시간 += Time.deltaTime;
+            _cooldownText.text = string.Format("{0:f0}", currentCooldown);
 
             yield return null;
         }
 
-        isCoolDown = false;
+        isCooldown = false;
+        _cooldownObject.SetActive(false);
     }
 }

@@ -10,9 +10,12 @@ public class ParticleManager : Singleton<ParticleManager>
     public List<DictionaryParticle> items = new List<DictionaryParticle>();
     public int size = 0;
 
+    public List<ParticleSystem> createdParticles;
+
     private void Start()
     {
         particles = new Dictionary<string, ParticleSystem>();
+        createdParticles = new List<ParticleSystem>();
 
         for (int i = 0; i < items.Count; i++)
         {
@@ -20,13 +23,25 @@ public class ParticleManager : Singleton<ParticleManager>
         }
     }
 
+    private void Update()
+    {
+        for(int i = 0; i < createdParticles.Count; i++)
+        {
+            var particle = createdParticles[i];
+
+            if(particle.IsAlive(true) == false)
+            {
+                createdParticles.Remove(particle);
+                Destroy(particle.gameObject);
+            }
+        }
+    }
+
     public void CreateParticle(string _name, Vector3 _position)
     {
         var particle = Instantiate(particles[_name].gameObject, _position, Quaternion.identity).GetComponent<ParticleSystem>();
 
-        Debug.Log("particle : " + particle);
-
-        StartCoroutine(AutoDestroy(particle));
+        createdParticles.Add(particle);
     }
 
     private IEnumerator AutoDestroy(ParticleSystem _particle)
@@ -36,7 +51,6 @@ public class ParticleManager : Singleton<ParticleManager>
             yield return null;
         }
 
-        Debug.Log("alive false");
-        //Destroy(_particle.gameObject);
+        Destroy(_particle.gameObject);
     }
 }

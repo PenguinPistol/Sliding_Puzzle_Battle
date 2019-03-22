@@ -22,7 +22,6 @@ public class InputController : Singleton<InputController>
         {
             int touchCount = Input.touchCount > MAX_TOUCH_COUNT ? MAX_TOUCH_COUNT : Input.touchCount;
 
-
             for (int i = 0; i < touchCount; i++)
             {
                 Touch touch = Input.GetTouch(i);

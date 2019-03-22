@@ -1,0 +1,9 @@
+#이름,타입,값,설명
+Damage_SwordTile,int,1,"십자 공격 타일로 공격했을 때, 몬스터에게 입히는 피해량"
+Damage_ArrowTile,int,1,"활속성 특수 공격 타일로 공격했을 때, 몬스터에게 입히는 피해량"
+Damage_BombTile,int,1,"폭탄속성 특수 공격 타일로 공격했을 때, 몬스터에게 입히는 피해량"
+SwordTileRatio,int,1,"몬스터 타일 수 대비, 십자 공격 타일의 개수 배율"
+Cooldown_InterstitialAd,float,120,전면 광고 쿨타임
+EnergyAdReward,int,1,에너지 획득 광고 시청 이후 획득 에너지 값
+Cooldown_EnergyRecovery,float,300,무료로 에너지 획득하는 시간 ( 하루 86400 초 )
+MaxEnergy,int,5,에너지 최대 보유 개수 제한 값

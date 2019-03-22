@@ -1,190 +1,193 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using com.PlugStudio.Patterns;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
     public enum PlayState
     {
-        Ready, Play, Pause, Clear, Failed, Finish
+        Ready, Play, Pause, Attack, Finish
     }
 
-    // 게임오버 체크
-    private bool isGameover = true;
-    // 플레이 상태
+    private Database db;
     private PlayState state;
+    private int currentLevel;
+    private PlayState beforeState;
 
-    // 남은 공격횟수
-    private int currentAttackCount;
-    // 남아있는 몬스터 수
-    public int currentMonsterCount;
-    private float currentTimeLimit;
+    public GameObject tutorial;
 
-    // 현재 스테이지 정보
-    private StageData stage;
+    public static int Reinforce = 1;
+    public static bool TimeStop = false;
 
-    // 보드 
-    public Transform board;
-    // 타일 프리팹
-    public TileController tilePrefab;
-    // 설정 화면 애니메이터
-    public Animator settingView;
+    public Database.SavedGameData   GameData    { get { return db.GameData; } }
+    public List<StageData>          Stages      { get { return db.Stages; } }
+    public List<Skill>              Skills      { get { return db.Skills; } }
+    public PlayState                State       { get { return state; } }
+    public bool                     IsPlaying   { get { return state == PlayState.Play; } }
+    public bool                     IsPause     { get { return state == PlayState.Pause; } }
+    public int                      BoardSize   { get { return Stages[currentLevel].BoardSize; } }
+    public int                      CompleteLevel { get { return db.GameData.completeLevel; } }
 
-    public int AttackLimit { get { return currentAttackCount; } }
-    public float TimeLimit { get { return currentTimeLimit; } }
-    public PlayState State { get { return state; } }
-
-    public Puzzle puzzle;
-    public List<Skill> skills;
-    public int completeLevel;
-    public int MaxLevel = 5;
-
-    private void Start()
-    {
-        skills = Database.Instance.Skills;
-        completeLevel = Database.Instance.CompleteLastLevel;
+    public bool IsViewTutorial {
+        get { return db.GameData.viewTutorial; }
+        set { db.GameData.viewTutorial = value; }
     }
 
-#region Game State Controll
+    [HideInInspector]
+    public Puzzle currentPuzzle;
 
-    public void StartGame(StageData _stage)
+    private IEnumerator Start()
     {
-        stage = _stage;
+        DontDestroyOnLoad(gameObject);
 
-        if(state == PlayState.Ready && isGameover)
+        var overlaps = FindObjectsOfType<GameManager>();
+
+        for (int i = 1; i < overlaps.Length; i++)
+        {
+            Destroy(overlaps[i].gameObject);
+        }
+
+        db = new Database();
+
+        StateController.Instance.Init();
+        StateController.Instance.ChangeState("Intro", false);
+
+        yield return StartCoroutine(db.ReadGameConst());
+        db.LoadGameData();
+
+        yield return StartCoroutine(db.ReadStageData());
+        yield return StartCoroutine(db.ReadLevelMonsterInfo());
+
+        SkillManager.Instance.Init();
+
+        StateController.Instance.ChangeState("StageSelect", false);
+    }
+
+    private void OnApplicationPause(bool pause)
+    {
+        if(pause)
+        {
+            db.SaveGameData();
+
+            if (isDelete)
+            {
+                PlayerPrefs.DeleteAll();
+            }
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        if(db != null)
+        {
+            db.SaveGameData();
+        }
+
+        if(isDelete)
+        {
+            PlayerPrefs.DeleteAll();
+        }
+    }
+
+    public void LoadLevel(int _level)
+    {
+        if(state == PlayState.Ready)
+        {
+            currentLevel = _level;
+            StateController.Instance.ChangeState("Game", true, _level);
+        }
+    }
+
+    public void StartGame()
+    {
+        if(state == PlayState.Ready)
         {
             state = PlayState.Play;
-            isGameover = false;
-            //factory = new TileFactory(tilePrefab, board);
-
-            currentAttackCount = stage.AttackLimit;
-            currentTimeLimit = stage.TimeLimit;
-            currentMonsterCount = stage.MonsterCount;
-
-
-            puzzle = new Puzzle(stage, board);
-            StartCoroutine(puzzle.CreatePuzzle(tilePrefab));
         }
     }
 
-    public void PauseGame()
+    public void PauseGame(bool _isPause)
     {
-        if(state != PlayState.Play)
+
+        if (_isPause)
         {
-            return;
+            // pause
+            beforeState = state;
+            ChangeStae(PlayState.Pause);
         }
-
-        settingView.Play("Setting_Show");
-        state = PlayState.Pause;
-    }
-
-    public void ResumeGame()
-    {
-        if (state != PlayState.Pause)
+        else
         {
-            return;
+            // resume
+            ChangeStae(beforeState);
         }
-
-        settingView.Play("Setting_Close");
-        state = PlayState.Play;
     }
 
-    public void RestartGame()
+    public void FinishGame(bool _isClear)
     {
-        FinishGame();
-        StopCoroutine(Game());
-        StartGame(stage);
-    }
+        ChangeStae(PlayState.Finish);
 
-    public void FinishGame()
-    {
-        settingView.Play("Setting_Idle");
-        state = PlayState.Ready;
-        isGameover = true;
-
-        puzzle.Clean();
-
-        //DeleteBoard();
-    }
-#endregion
-
-    public int reinforceScope;
-
-    public void Attack()
-    {
-        if(state != PlayState.Play || puzzle.isAttacked)
+        if (_isClear)
         {
-            return;
-        }
-
-        StartCoroutine(puzzle.Attack());
-    }
-
-    public void UseSkill(int _index)
-    {
-        if (state != PlayState.Play)
-        {
-            return;
-        }
-
-        skills[_index].Activate();
-    }
-
-    public IEnumerator Game()
-    {
-        while (!isGameover)
-        {
-            if(state == PlayState.Pause)
+            if(currentLevel >= CompleteLevel)
             {
-                yield return null;
-                continue;
-            }
-
-            // 스테이지 조건이 있으면
-            if(stage.isAchieve[0])
-            {
-                // 현재 횟수제한이 0이면 조건 종료
-                if (stage.AttackLimit <= 0)
+                if(currentLevel < Stages.Count - 1)
                 {
-                    state = PlayState.Failed;
-                    DialogManager.Instance.ShowDialog("Failed");
+                    db.GameData.completeLevel = currentLevel + 1;
                 }
             }
 
-            // 시간제한
-            if (stage.isAchieve[1])
-            {
-                // 현재 횟수제한이 0이면 조건 종료
-                if (currentTimeLimit <= 0)
-                {
-                    state = PlayState.Failed;
-                    DialogManager.Instance.ShowDialog("Failed");
-                    isGameover = true;
-                }
-                else
-                {
-                    currentTimeLimit -= Time.deltaTime;
-                }
-            }
-
-            // 몬스터 수가 0이면 성공
-            if (currentMonsterCount == 0)
-            {
-                // 결과 화면 출력
-                isGameover = true;
-                state = PlayState.Clear;
-
-                DialogManager.Instance.ShowDialog("Clear");
-            }
-
-            yield return null;
+            DialogManager.Instance.ShowDialog("Clear");
+        }
+        else
+        {
+            DialogManager.Instance.ShowDialog("Failed");
         }
     }
 
-    public void ChangeTile(System.Type _type)
+    public void RestartLevel()
     {
-        puzzle.ChangeTile(_type);
+        ChangeStae(PlayState.Ready);
+
+        LoadLevel(currentLevel);
+    }
+
+    public void PlayNextLevel()
+    {
+        ChangeStae(PlayState.Ready);
+
+        LoadLevel(currentLevel + 1);
+    }
+
+    public void LeaveLevel()
+    {
+        ChangeStae(PlayState.Ready);
+
+        StateController.Instance.ChangeState("StageSelect", true);
+    }
+
+    public void ChangeStae(PlayState _state)
+    {
+        state = _state;
+    }
+
+    public void ShowDialog(string _name)
+    {
+        DialogManager.Instance.ShowDialog(_name);
+    }
+
+    public void ShowTutorial()
+    {
+        tutorial.SetActive(true);
+    }
+
+    private bool isDelete = false;
+
+    public void DeleteData()
+    {
+        isDelete = true;
+
+        Application.Quit();
     }
 }

@@ -6,6 +6,6 @@ public class LeaveStageDialog : Dialog
     public override void PositiveAction()
     {
         gameObject.SetActive(false);
-        StateController.Instance.ChangeState("StageSelect", false);
+        GameManager.Instance.LeaveLevel();
     }
 }
