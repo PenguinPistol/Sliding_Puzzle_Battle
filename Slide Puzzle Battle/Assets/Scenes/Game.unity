@@ -1859,20 +1859,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8895838130297332741, guid: b4aa4193c1cb1174c8009fc1da1d938f,
-        type: 3}
-      propertyPath: bgms.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8895838130297332741, guid: b4aa4193c1cb1174c8009fc1da1d938f,
-        type: 3}
-      propertyPath: bgms.Array.data[0]
-      value: 
-      objectReference: {fileID: 8300000, guid: 9aec83b15feff2d49a24b2e8c70d5625, type: 3}
-    - target: {fileID: 8895838130046474470, guid: b4aa4193c1cb1174c8009fc1da1d938f,
-        type: 3}
-      propertyPath: m_PlayOnAwake
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b4aa4193c1cb1174c8009fc1da1d938f, type: 3}

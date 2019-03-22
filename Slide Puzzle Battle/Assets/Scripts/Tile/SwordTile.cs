@@ -46,14 +46,16 @@ public class SwordTile : WeaponTile
                 }
             }
 
-            controller.animator.Play(aniName[index]);
+            Animator.Play(aniName[index]);
 
-            var length = controller.animator.GetCurrentAnimatorStateInfo(0).length;
-            var time = 0f;
-
-            while (time < length)
+            while (!Animator.GetCurrentAnimatorStateInfo(0).IsName(aniName[index]))
             {
-                time += Time.deltaTime;
+                //전환 중일 때 실행되는 부분
+                yield return null;
+            }
+
+            while (Animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f)
+            {
                 yield return null;
             }
 

@@ -44,7 +44,7 @@ public class SkillObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             StartCoroutine(data.Cooldown(cooldownBackground, cooldownText));
         });
 
-        if(data.unlockLevel < GameManager.Instance.CompleteLevel)
+        if(data.unlockLevel <= GameManager.Instance.CompleteLevel)
         {
             // 언락
             lockIcon.SetActive(false);
@@ -74,7 +74,7 @@ public class SkillObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if(data.unlockLevel < GameManager.Instance.CompleteLevel)
+        if(data.unlockLevel <= GameManager.Instance.CompleteLevel)
         {
             isPressed = true;
 

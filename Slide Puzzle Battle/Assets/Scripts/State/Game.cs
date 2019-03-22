@@ -24,6 +24,7 @@ public class Game : State
 
     private Animator timeLimitAnimator;
     private float currentTimeLimit;
+    private AudioSource clockSound;
 
     public override IEnumerator Initialize(params object[] _data)
     {
@@ -78,6 +79,20 @@ public class Game : State
             return;
         }
 
+        if (clockSound != null)
+        {
+            clockSound.mute = GameManager.Instance.GameData.muteSE;
+
+            if(GameManager.Instance.IsPause)
+            {
+                clockSound.Pause();
+            }
+            else if(clockSound.isPlaying == false)
+            {
+                clockSound.UnPause();
+            }
+        }
+
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             // 게임세팅 보기 & 게임 퍼즈
@@ -110,6 +125,9 @@ public class Game : State
             {
                 if(currentTimeLimit <= 0)
                 {
+                    clockSound.Stop();
+                    Destroy(clockSound.gameObject);
+
                     GameManager.Instance.FinishGame(false);
                     return;
                 }
@@ -117,7 +135,8 @@ public class Game : State
                 if(Mathf.FloorToInt(currentTimeLimit) == 10
                     && timeLimitAnimator.GetBool("Timeout") == false)
                 {
-                    SoundManager.Instance.PlaySE(12);
+                    clockSound = SoundManager.Instance.GetSE(12);
+                    clockSound.Play();
                     timeLimitAnimator.SetBool("Timeout", true);
                 }
 
@@ -132,6 +151,12 @@ public class Game : State
 
     public override void Release()
     {
+        if(clockSound != null)
+        {
+            clockSound.Stop();
+            Destroy(clockSound.gameObject);
+        }
+
         GameManager.Reinforce = 1;
         GameManager.TimeStop = false;
 

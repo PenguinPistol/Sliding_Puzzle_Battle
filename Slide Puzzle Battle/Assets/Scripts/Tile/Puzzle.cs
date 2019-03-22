@@ -248,6 +248,11 @@ public class Puzzle : MonoBehaviour
 
         isAttack = true;
 
+        tiles.Sort(delegate (TileController a, TileController b)
+        {
+            return a.Index.CompareTo(b.Index);
+        });
+
         StartCoroutine(Attack());
     }
 
@@ -337,7 +342,7 @@ public class Puzzle : MonoBehaviour
             }
         }
 
-
+        GameManager.Reinforce = 1;
 
         isAttack = false;
     }
@@ -364,6 +369,7 @@ public class Puzzle : MonoBehaviour
         var newTile = Instantiate(tilePrefab, this.transform);
         newTile.name = "new tile";
         newTile.SetData(newTileData, transform.localPosition, transform.localScale);
+        newTile.PlayAnimation("Tile_Respawn");
         tiles.Insert(listIndex, newTile);
     }
 

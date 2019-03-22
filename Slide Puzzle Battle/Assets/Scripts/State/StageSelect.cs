@@ -21,6 +21,8 @@ public class StageSelect : State
         {
             isInit = true;
 
+            AdsManager.Instance.ShowBanner();
+
             beforeCompleteLevel = GameManager.Instance.CompleteLevel;
         }
         else

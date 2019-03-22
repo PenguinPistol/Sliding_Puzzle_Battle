@@ -112,7 +112,5 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0e02e206e337eb74aba918cc49049808, type: 3}
   - {fileID: 21300000, guid: a2d9206ed4fc7db4292bcb753ad655ed, type: 3}
   - {fileID: 21300000, guid: fd4d11f064034b147b08bb8cf2e195c0, type: 3}
-  fps: 30
+  fps: 60
   playOnAwake: 1
-  loopAnimation: 0
-  destroyAuto: 1

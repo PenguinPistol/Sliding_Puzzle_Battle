@@ -12,13 +12,10 @@ public class SpriteEffect : MonoBehaviour
     private int currentFrame;
     private SpriteRenderer sr;
 
-    private IEnumerator animated;
-
-    private void Awake()
+    private void Start()
     {
         isPlay = false;
         sr = GetComponent<SpriteRenderer>();
-        animated = Animated();
 
         if (playOnAwake)
         {
@@ -32,18 +29,7 @@ public class SpriteEffect : MonoBehaviour
         {
             isPlay = true;
 
-            StartCoroutine(animated);
-        }
-    }
-
-    public void Stop()
-    {
-        if(isPlay)
-        {
-            isPlay = false;
-            currentFrame = 0;
-
-            StopCoroutine(animated);
+            StartCoroutine(Animated());
         }
     }
 

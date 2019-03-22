@@ -20,6 +20,9 @@ public class TileController : MonoBehaviour
         {
             data.Execute();
         }
+
+        //var nor = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+        //Debug.Log("nor : " + nor);
     }
 
     public void SetData(Tile _data, Vector3 _posotion, Vector3 _scale)

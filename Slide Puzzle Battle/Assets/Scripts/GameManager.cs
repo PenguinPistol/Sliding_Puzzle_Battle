@@ -190,4 +190,19 @@ public class GameManager : Singleton<GameManager>
 
         Application.Quit();
     }
+
+    public void ShowInterstial()
+    {
+        AdsManager.Instance.ShowInterstitial();
+    }
+
+    public void ShowEnergyRewardAd()
+    {
+        if(SkillManager.Instance.currentEnergy == GameConst.MaxEnergy)
+        {
+            return;
+        }
+
+        AdsManager.Instance.ShowRewardEnergy();
+    }
 }
