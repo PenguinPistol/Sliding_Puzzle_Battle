@@ -65,8 +65,6 @@ public class BombTile : WeaponTile
                 }
             }
         }
-
-        Debug.Log("count : " + count);
     }
 
     public override void Execute()

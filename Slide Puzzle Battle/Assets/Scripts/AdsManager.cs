@@ -5,19 +5,22 @@ using com.PlugStudio.Patterns;
 
 public class AdsManager : Singleton<AdsManager>
 {
-    private const string appId = "ca-app-pub-3117214092102716~2998811044";
-    private const string interUnit = "ca-app-pub-3117214 092102716/2511139154";
-    private const string rewardUnit = "ca-app-pub-3117214092102716/9890935729";
-    private const string bannerId = "ca-app-pub-3117214092102716/6839188987";
+    private const string APP_ID             = "ca-app-pub-3117214092102716~2998811044";
+
+    private const string BANNER_ID          = "ca-app-pub-3117214092102716/6839188987";
+    private const string INTERSTITIAL_ID    = "ca-app-pub-3117214092102716/2511139154";
+    private const string REWARD_CONTINUE_ID = "ca-app-pub-3117214092102716/9890935729";
+    private const string REWARD_ENERGY_ID   = "ca-app-pub-3117214092102716/7155320462";
 
     // 배너 광고
     private GoogleAdsBanner banner;
     // 전면 광고
     private GoogleAdsInterstitial inter;
     // 보상형 광고
-    private GoogleAdsReward reward;
+    private GoogleAdsReward rewardContinue;
+    private GoogleAdsReward rewardEnergy;
 
-    private void Awake()
+    private void Start()
     {
         Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             var dependencyStatus = task.Result;
@@ -39,21 +42,16 @@ public class AdsManager : Singleton<AdsManager>
             }
         });
 
-        Firebase.Analytics.FirebaseAnalytics.LogEvent(Firebase.Analytics.FirebaseAnalytics.EventLogin);
+        MobileAds.Initialize(APP_ID);
 
-        MobileAds.Initialize(appId);
-    }
-
-    private void Start()
-    {
         AdSize bannerSize = new AdSize(AdSize.FullWidth, 50);
 
-        banner = new GoogleAdsBanner.Builder(bannerId, bannerSize)
-               .SetTestMode(true)
-               .Build();
-        banner.Request();
+        banner = new GoogleAdsBanner.Builder(BANNER_ID, bannerSize)
+                  .SetTestMode(true)
+                  .SetOnFailedLaoded(BannerFailedToLoad)
+                  .Build();
 
-        inter = new GoogleAdsInterstitial.Builder(interUnit)
+        inter = new GoogleAdsInterstitial.Builder(INTERSTITIAL_ID)
             .SetTestMode(true)
             .SetOnAdFailedToLoad(InterFailed)
             .SetOnAdClose(InterClosed)
@@ -61,20 +59,37 @@ public class AdsManager : Singleton<AdsManager>
 
         inter.Request();
 
-        reward = new GoogleAdsReward.Builder(rewardUnit)
+        rewardContinue = new GoogleAdsReward.Builder(REWARD_CONTINUE_ID)
             .TestMode(true)
             .SetOnAdClosed(RewardClosed)
             .SetOnAdFailedToLoad(RewardFailedToLoad)
-            .SetOnAdRewarded(RewardRewarded)
+            .SetOnAdRewarded(RewardContinueRewarded)
             .Build();
 
-        reward.Request();
+        rewardContinue.Request();
 
+        rewardEnergy = new GoogleAdsReward.Builder(REWARD_ENERGY_ID)
+            .TestMode(true)
+            .SetOnAdClosed(RewardClosed)
+            .SetOnAdFailedToLoad(RewardFailedToLoad)
+            .SetOnAdRewarded(RewardEnergyRewarded)
+            .Build();
+        rewardEnergy.Request();
     }
 
-    public void ShowReward()
+    public void ShowBanner()
     {
-        reward.Show();
+        banner.Request();
+    }
+
+    public void ShowRewardContinue()
+    {
+        rewardContinue.Show();
+    }
+
+    public void ShowRewardEnergy()
+    {
+        rewardEnergy.Show();
     }
 
     public void ShowInterstitial()
@@ -94,7 +109,8 @@ public class AdsManager : Singleton<AdsManager>
 
     private void RewardClosed(object sender, EventArgs args)
     {
-        reward.Request();
+        rewardContinue.Request();
+        rewardEnergy.Request();
     }
 
     private void RewardFailedToLoad(object sender, AdFailedToLoadEventArgs args)
@@ -102,8 +118,19 @@ public class AdsManager : Singleton<AdsManager>
         Debug.Log("## Reward Ad Load Failed");
     }
 
-    private void RewardRewarded(object sender, Reward args)
+    private void RewardContinueRewarded(object sender, Reward args)
     {
         Debug.Log("## reward type :" + args.Type + " / amount :" + args.Amount);
+    }
+
+    private void RewardEnergyRewarded(object sender, Reward args)
+    {
+        SkillManager.Instance.AddEnergy();
+    }
+
+    public void BannerFailedToLoad(object sender, AdFailedToLoadEventArgs args)
+    {
+        Debug.Log("HandleFailedToReceiveAd event received with message: "
+                            + args.Message);
     }
 }

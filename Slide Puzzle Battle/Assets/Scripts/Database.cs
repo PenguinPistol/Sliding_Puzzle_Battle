@@ -80,7 +80,9 @@ public class Database
 
         gameData = new SavedGameData(muteBGM, muteSE, elapseTime, completeLevel, remainingEnergy, viewTutorial);
 
+        // 지난시간에 비례해서 회복된 에너지
         int recoveryEnergy = (int)(elapseTime / GameConst.Cooldown_EnergyRecovery);
+        // 에너지 충전하고 남은 시간
         float elapseRecoveryTime = elapseTime % GameConst.Cooldown_EnergyRecovery;
 
         remainingEnergy += recoveryEnergy;

@@ -33,6 +33,9 @@ public class StageList : ListView<StageListItem, StageData>
             yield return null;
         }
 
+
+        SetScrollPosition(GameManager.Instance.CompleteLevel, true);
+
         time = Time.time - time;
 
         Debug.Log("listview initialized time : " + time);

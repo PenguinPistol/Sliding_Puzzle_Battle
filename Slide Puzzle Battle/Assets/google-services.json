@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "1038089653907-d1ses7uuupkkccvp9kotmu2dtoqt264p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.plugstudio.spb",
+            "certificate_hash": "4c405cdbc01a1b9758489e4ff0ebb4d54e830833"
+          }
+        },
+        {
           "client_id": "1038089653907-tcsdlat85hu5f9mm07o10s4oa1rc6uut.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -48,7 +56,8 @@
         "ads_service": {
           "status": 2
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-3117214092102716~2998811044"
     }
   ],
   "configuration_version": "1"

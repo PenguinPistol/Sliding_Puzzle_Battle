@@ -63,6 +63,11 @@ public class SkillManager : Singleton<SkillManager>
         currentEnergy++;
         energyBoard.CheckCurrentEnergy(true);
 
+        if(elapseRecoveryTime > 0)
+        {
+            elapseRecoveryTime = 0f;
+        }
+
         if (currentEnergy < GameConst.MaxEnergy)
         {
             StartCoroutine(RecoveryEnergy());
@@ -76,13 +81,20 @@ public class SkillManager : Singleton<SkillManager>
     // 테스트용
     public void AddEnergy()
     {
-        if(currentEnergy >= GameConst.MaxEnergy-1)
+        if(currentEnergy == GameConst.MaxEnergy)
         {
             return;
         }
 
-        currentEnergy++;
-        energyBoard.CheckCurrentEnergy(true);
+        if(doRecovery)
+        {
+            recoveryTime = 0;
+        }
+        else
+        {
+            currentEnergy++;
+            energyBoard.CheckCurrentEnergy(true);
+        }
     }
 
     public void ShowDescription(Skill _data, Vector3 _position)

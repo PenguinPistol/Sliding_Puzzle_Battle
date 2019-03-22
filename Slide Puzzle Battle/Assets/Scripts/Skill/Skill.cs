@@ -27,6 +27,11 @@ public abstract class Skill : ScriptableObject
 
         while (currentCooldown > 0)
         {
+            while (GameManager.Instance.IsPlaying == false)
+            {
+                yield return null;
+            }
+
             currentCooldown -= Time.deltaTime;
 
             _cooldownText.text = string.Format("{0:f0}", currentCooldown);

@@ -45,21 +45,18 @@ public class SoundManager : Singleton<SoundManager>
         StartCoroutine(AutoDestroySE(soundObject));
     }
 
-    public void PlaySE(int _index, bool _loop)
+    public AudioSource GetSE(int _index)
     {
-        if (GameManager.Instance.GameData.muteSE)
-        {
-            return;
-        }
-
         var soundObject = Instantiate(sePrefab, transform);
         soundObject.clip = effects[_index];
-        soundObject.Play();
+        soundObject.loop = true;
 
-        if(_loop == false)
+        if (GameManager.Instance.GameData.muteSE)
         {
-            StartCoroutine(AutoDestroySE(soundObject));
+            soundObject.mute = true;
         }
+
+        return soundObject;
     }
 
     public void MuteSE()
