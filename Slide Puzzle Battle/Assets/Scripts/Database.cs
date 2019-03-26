@@ -17,6 +17,7 @@ public class Database
     private const string KEY_REMAINING_ENERGY       = "REMAINING_ENERGY";
     private const string KEY_QUIT_TIME              = "QUIT_TIME";
     private const string KEY_VIEW_TUTORIAL          = "VIEW_TUTORIAL";
+    private const string KEY_RECOVERY_TIME          = "RECOVERY_TIME";
 
     private const string DATETIME_FORMAT            = "yyyyMMddHHmmss";
 
@@ -35,16 +36,14 @@ public class Database
         public bool muteSE;
         public long elapseTime;
         public int completeLevel;
-        public int remainingEnergy;
         public bool viewTutorial;
 
-        public SavedGameData(bool _muteBGM, bool _muteSE, long _elapseTime, int _completeLevel, int _remainingEnergy, bool _viewTutorial)
+        public SavedGameData(bool _muteBGM, bool _muteSE, long _elapseTime, int _completeLevel, bool _viewTutorial)
         {
             muteBGM = _muteBGM;
             muteSE = _muteSE;
             elapseTime = _elapseTime;
             completeLevel = _completeLevel;
-            remainingEnergy = _remainingEnergy;
             viewTutorial = _viewTutorial;
         }
     }
@@ -58,6 +57,7 @@ public class Database
         PlayerPrefs.SetInt(KEY_REMAINING_ENERGY, SkillManager.Instance.currentEnergy);
         PlayerPrefs.SetString(KEY_QUIT_TIME, DateTime.Now.ToString(DATETIME_FORMAT));
         PlayerPrefs.SetString(KEY_VIEW_TUTORIAL, gameData.viewTutorial.ToString());
+        PlayerPrefs.SetFloat(KEY_RECOVERY_TIME, SkillManager.Instance.recoveryTime);
 
         PlayerPrefs.Save();
     }
@@ -75,28 +75,27 @@ public class Database
         bool muteSE = bool.Parse(strMuteSE);
         long elapseTime = long.Parse(currentTime) - long.Parse(quitTime);
         int completeLevel = PlayerPrefs.GetInt(KEY_COMPLETE_LAST_LEVEL, 0);
-        int remainingEnergy = PlayerPrefs.GetInt(KEY_REMAINING_ENERGY, 5);
         bool viewTutorial = bool.Parse(strViewTutorial);
 
-        gameData = new SavedGameData(muteBGM, muteSE, elapseTime, completeLevel, remainingEnergy, viewTutorial);
+        gameData = new SavedGameData(muteBGM, muteSE, elapseTime, completeLevel, viewTutorial);
 
-        // 지난시간에 비례해서 회복된 에너지
+        // 남은 에너지
+        int remainingEnergy = PlayerPrefs.GetInt(KEY_REMAINING_ENERGY, 5);
+        // 충전된 에너지
         int recoveryEnergy = (int)(elapseTime / GameConst.Cooldown_EnergyRecovery);
         // 에너지 충전하고 남은 시간
         float elapseRecoveryTime = elapseTime % GameConst.Cooldown_EnergyRecovery;
+        // 충전 중이던 시간
+        float recoveryTime = PlayerPrefs.GetFloat(KEY_RECOVERY_TIME, GameConst.Cooldown_EnergyRecovery);
 
         remainingEnergy += recoveryEnergy;
 
         if (remainingEnergy >= GameConst.MaxEnergy)
         {
             remainingEnergy = GameConst.MaxEnergy;
-            SkillManager.Instance.elapseRecoveryTime = 0f;
-        }
-        else
-        {
-            SkillManager.Instance.elapseRecoveryTime = elapseRecoveryTime;
         }
 
+        SkillManager.Instance.recoveryTime = recoveryTime - elapseRecoveryTime;
         SkillManager.Instance.currentEnergy = remainingEnergy;
     }
     

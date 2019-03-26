@@ -8,6 +8,8 @@ public class GoogleAdsReward
     private RewardBasedVideoAd m_RewardAd;
     private string m_UnitId;
 
+    public bool Loaded { get { return m_RewardAd.IsLoaded(); } }
+
     private GoogleAdsReward(Builder builder)
     {
         m_RewardAd = builder.Ad;

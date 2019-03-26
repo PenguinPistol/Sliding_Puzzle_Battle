@@ -53,7 +53,7 @@ public class Tutorial : MonoBehaviour
     public void Skip()
     {
         // 게임 리얼루 시작!
-        GameManager.Instance.ChangeStae(GameManager.PlayState.Play);
+        GameManager.Instance.ChangeState(GameManager.PlayState.Play);
 
         gameObject.SetActive(false);
     }

@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using com.PlugStudio.Patterns;
+﻿using UnityEngine;
 
 public class FailedDialog : Dialog
 {
@@ -23,6 +20,33 @@ public class FailedDialog : Dialog
     public override void PositiveAction()
     {
         // 광고보고 이어하기
-        //gameObject.SetActive(false);
+#if UNITY_EDITOR
+        gameObject.SetActive(false);
+        GameManager.Instance.ContinueGame();
+#elif UNITY_ANDROID
+        AdsManager.Instance.ShowRewardContinue(this);
+#endif
+    }
+    
+#if UNITY_ANDROID
+    private void OnEnable()
+    {
+        if(AdsManager.Instance.LoadedReward == false)
+        {
+            positiveButton.gameObject.SetActive(false);
+        }
+    }
+#endif
+
+    private void Update()
+    {
+        if(GameManager.Instance.IsContinued)
+        {
+            positiveButton.interactable = false;
+        }
+        else
+        {
+            positiveButton.interactable = true;
+        }
     }
 }
