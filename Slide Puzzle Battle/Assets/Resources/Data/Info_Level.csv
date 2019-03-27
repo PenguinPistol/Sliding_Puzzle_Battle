@@ -61,5 +61,5 @@ Level,BoardSize,BowTile,BombTile,MonsterCount,AttackLimit,TimeLimit
 57,7,0,0,15,1,120
 58,7,0,0,15,10,120
 59,7,0,0,8,15,150
-60,7,0,0,8,10,200
+60,7,0,0,20,4,200
 @,,,,,,

@@ -14,18 +14,15 @@ public class StageSelect : State
     public override IEnumerator Initialize(params object[] _data)
     {
 #if UNITY_ANDROID
+        //float height = Screen.height < 1920f ? 1920 : Screen.height;
 
-        float height = GetComponentInChildren<Canvas>().pixelRect.height;
+        //if (AdsManager.Instance.LoadedBanner)
+        //{
+        //    height -= AdsManager.Instance.BannerHeight;
+        //}
 
-        if(AdsManager.Instance.LoadedBanner)
-        {
-            Debug.Log("AdsManager.Instance.BannerHeight : " + AdsManager.Instance.BannerHeight);
-
-            height -= AdsManager.Instance.BannerHeight;
-        }
-
-        contentView.sizeDelta = new Vector3(0, height);
-        settingView.sizeDelta = contentView.sizeDelta;
+        //contentView.sizeDelta = new Vector3(0, height);
+        //settingView.sizeDelta = contentView.sizeDelta;
 
         if (AdsManager.Instance.LoadedReward == false)
         {
@@ -44,7 +41,7 @@ public class StageSelect : State
         {
             isInit = true;
 
-            AdsManager.Instance.ShowBanner();
+            //AdsManager.Instance.ShowBanner();
 
             beforeCompleteLevel = GameManager.Instance.CompleteLevel;
         }

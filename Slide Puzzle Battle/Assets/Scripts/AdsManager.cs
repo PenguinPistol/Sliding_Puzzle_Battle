@@ -42,25 +42,18 @@ public class AdsManager : Singleton<AdsManager>
         return (int)(_dp * (Screen.dpi / 160));
     }
 
-    private void Start()
+    private void Awake()
     {
         Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
             var dependencyStatus = task.Result;
 
             if (dependencyStatus == Firebase.DependencyStatus.Available)
             {
-                // Create and hold a reference to your FirebaseApp, i.e.
-                //   app = Firebase.FirebaseApp.DefaultInstance;
-                // where app is a Firebase.FirebaseApp property of your application class.
-
-                // Set a flag here indicating that Firebase is ready to use by your
-                // application.
             }
             else
             {
                 UnityEngine.Debug.LogError(System.String.Format(
                 "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
-                // Firebase Unity SDK is not safe to use here.+
             }
         });
 
@@ -69,19 +62,24 @@ public class AdsManager : Singleton<AdsManager>
         AdSize bannerSize = new AdSize(AdSize.FullWidth, 50);
         loadedBanner = true;
 
+
+        if (Display.main.systemHeight != Screen.height)
+        {
+            loadedBanner = false;
+        }
+
         //int notchHeight = Display.main.systemHeight - Screen.height;
-        //int yDP = PixelsToDp(Screen.height - DpToPixel(50) + notchHeight);
-        int notchHeight = Display.main.systemHeight - Screen.height;
-        int yDP = PixelsToDp(Screen.height + notchHeight * 2) - bannerSize.Height;
-        int DP = PixelsToDp(Screen.height + notchHeight) - 25;
+        ////int yDP = PixelsToDp(Screen.height + notchHeight) - bannerSize.Height;
+        //int yDP = 0;
 
+        //Debug.Log("screen dpi : " + Screen.dpi);
+        //Debug.Log("notch height : " + notchHeight);
+        //Debug.Log("yDP : " + yDP);
+        //Debug.Log("display height : " + Display.main.systemHeight + " / " + PixelsToDp(Display.main.systemHeight));
+        //Debug.Log("screen height : " + Screen.height + " / " + PixelsToDp(Screen.height));
 
-        Debug.Log("notch : " + notchHeight + " / " + PixelsToDp(notchHeight));
-        Debug.Log(DP + " / " + PixelsToDp(Screen.height) + " / " + yDP);
-
-        banner = new GoogleAdsBanner.Builder(BANNER_ID, bannerSize, 0, yDP)
+        banner = new GoogleAdsBanner.Builder(BANNER_ID, bannerSize)
                   .SetOnFailedLaoded(BannerFailedToLoad)
-                  .SetTestMode(true, 0, yDP)
                   .Build();
 
         inter = new GoogleAdsInterstitial.Builder(INTERSTITIAL_ID)
@@ -102,6 +100,11 @@ public class AdsManager : Singleton<AdsManager>
 
     public void ShowBanner()
     {
+        if(Display.main.systemHeight != Screen.height)
+        {
+            return;
+        }
+
         banner.Request();
     }
 
@@ -146,14 +149,14 @@ public class AdsManager : Singleton<AdsManager>
         StartCoroutine(InterstitalAdCooldown());
     }
 
-    private void InterFailed(object sender, AdFailedToLoadEventArgs args)
-    {
-        Debug.Log("## Interstitial Ad Load Failed");
-    }
-
     private void InterClosed(object sender, EventArgs args)
     {
         inter.Request();
+    }
+
+    private void InterFailed(object sender, AdFailedToLoadEventArgs args)
+    {
+        Debug.Log("## Interstitial Ad Load Failed ## " + args.Message);
     }
 
     private void RewardClosed(object sender, EventArgs args)

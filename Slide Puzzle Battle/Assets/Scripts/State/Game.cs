@@ -33,20 +33,20 @@ public class Game : State
     public override IEnumerator Initialize(params object[] _data)
     {
 #if UNITY_ANDROID
-        float height = transform.GetComponentInChildren<Canvas>().pixelRect.height;
+        //float height = Screen.height < 1920f ? 1920 : Screen.height;
 
-        if(AdsManager.Instance.LoadedBanner)
-        {
-            height -= AdsManager.Instance.BannerHeight;
-        }
+        //if(AdsManager.Instance.LoadedBanner)
+        //{
+        //    height -= AdsManager.Instance.BannerHeight;
+        //}
 
-        if(AdsManager.Instance.LoadedReward == false)
+        //contentView.sizeDelta = new Vector2(0, height);
+        //settingView.GetComponent<RectTransform>().sizeDelta = contentView.sizeDelta;
+
+        if (AdsManager.Instance.LoadedReward == false)
         {
             AdsManager.Instance.RequestReward();
         }
-
-        contentView.sizeDelta = new Vector2(0, height);
-        settingView.GetComponent<RectTransform>().sizeDelta = contentView.sizeDelta;
 #endif
 
         int index = (int)_data[0];

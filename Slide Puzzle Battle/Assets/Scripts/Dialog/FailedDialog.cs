@@ -31,10 +31,7 @@ public class FailedDialog : Dialog
 #if UNITY_ANDROID
     private void OnEnable()
     {
-        if(AdsManager.Instance.LoadedReward == false)
-        {
-            positiveButton.gameObject.SetActive(false);
-        }
+        positiveButton.gameObject.SetActive(AdsManager.Instance.LoadedReward);
     }
 #endif
 
