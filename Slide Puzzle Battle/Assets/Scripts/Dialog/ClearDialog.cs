@@ -5,6 +5,10 @@ using com.PlugStudio.Patterns;
 
 public class ClearDialog : Dialog
 {
+    public override void Initialized()
+    {
+    }
+
     public override void NegativeAction()
     {
         // 스테이지 선택
