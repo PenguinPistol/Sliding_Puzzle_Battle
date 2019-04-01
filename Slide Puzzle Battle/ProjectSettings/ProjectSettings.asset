@@ -153,7 +153,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.plugstudio.spb
+    Android: com.teamplug.spb
     Standalone: com.Company.ProductName
   buildNumber: {}
   AndroidBundleVersionCode: 1
@@ -237,6 +237,7 @@ PlayerSettings:
   tvOSManualSigningProvisioningProfileType: 0
   appleEnableAutomaticSigning: 0
   iOSRequireARKit: 0
+  iOSAutomaticallyDetectAndAddCapabilities: 1
   appleEnableProMotion: 0
   clonedFromGUID: 5f34be1353de5cf4398729fda238591b
   templatePackageId: com.unity.template.2d@1.0.1

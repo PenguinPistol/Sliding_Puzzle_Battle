@@ -11,6 +11,9 @@ public class GameManager : Singleton<GameManager>
         Ready, Play, Pause, Attack, Finish
     }
 
+    public static int Reinforce = 1;
+    public static bool TimeStop = false;
+
     private Database db;
     private PlayState state;
     private int currentLevel;
@@ -18,9 +21,6 @@ public class GameManager : Singleton<GameManager>
     private bool isContinued;
 
     public GameObject tutorial;
-
-    public static int Reinforce = 1;
-    public static bool TimeStop = false;
 
     public Database.SavedGameData   GameData    { get { return db.GameData; } }
     public List<StageData>          Stages      { get { return db.Stages; } }
@@ -30,6 +30,7 @@ public class GameManager : Singleton<GameManager>
     public bool                     IsPause     { get { return state == PlayState.Pause; } }
     public int                      BoardSize   { get { return Stages[currentLevel].BoardSize; } }
     public int                      CompleteLevel { get { return db.GameData.completeLevel; } }
+    public int                      LastPlayedLevel { get { return currentLevel; } }
     public bool                     IsContinued { get { return isContinued; } }
 
     public bool IsViewTutorial {
@@ -65,6 +66,7 @@ public class GameManager : Singleton<GameManager>
         SkillManager.Instance.Init();
 
         StateController.Instance.ChangeState("StageSelect", false);
+        currentLevel = GameData.completeLevel;
     }
 
     private void OnApplicationPause(bool pause)

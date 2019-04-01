@@ -6,40 +6,6 @@ using com.PlugStudio.Patterns;
 
 public class StageList : ListView<StageListItem, StageData>
 {
-    public override IEnumerator Init(List<StageData> _items)
-    {
-        float time = Time.time;
-
-        for (int i = 0; i < _items.Count; i++)
-        {
-            var itemView = Instantiate(listItemPrefab, contentView);
-
-            itemView.Init(_items[i], i);
-
-            var click = itemView.GetComponent<Button>();
-
-            if(click == null)
-            {
-                click = itemView.gameObject.AddComponent<Button>();
-            }
-
-            click.onClick.AddListener(() =>
-            {
-                SelectItem(itemView.Index);
-            });
-
-            items.Add(itemView);
-
-            yield return null;
-        }
-
-        SetScrollPosition(GameManager.Instance.CompleteLevel, true);
-
-        time = Time.time - time;
-
-        Debug.Log("listview initialized time : " + time);
-    }
-
     public override void SelectItem(int _index)
     {
         if(items[_index].Data.state.Equals(StageData.StageState.Lock))
