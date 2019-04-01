@@ -15,6 +15,7 @@ public class GameManager : Singleton<GameManager>
     private PlayState state;
     private int currentLevel;
     private PlayState beforeState;
+    private bool isContinued;
 
     public GameObject tutorial;
 
@@ -29,6 +30,7 @@ public class GameManager : Singleton<GameManager>
     public bool                     IsPause     { get { return state == PlayState.Pause; } }
     public int                      BoardSize   { get { return Stages[currentLevel].BoardSize; } }
     public int                      CompleteLevel { get { return db.GameData.completeLevel; } }
+    public bool                     IsContinued { get { return isContinued; } }
 
     public bool IsViewTutorial {
         get { return db.GameData.viewTutorial; }
@@ -95,6 +97,7 @@ public class GameManager : Singleton<GameManager>
     {
         if(state == PlayState.Ready)
         {
+            isContinued = false;
             currentLevel = _level;
             StateController.Instance.ChangeState("Game", true, _level);
         }
@@ -115,18 +118,29 @@ public class GameManager : Singleton<GameManager>
         {
             // pause
             beforeState = state;
-            ChangeStae(PlayState.Pause);
+            ChangeState(PlayState.Pause);
         }
         else
         {
             // resume
-            ChangeStae(beforeState);
+            ChangeState(beforeState);
         }
+    }
+
+    public void ContinueGame()
+    {
+        if(isContinued)
+        {
+            return;
+        }
+
+        isContinued = true;
+        ((Game)StateController.Instance.CurrentState).ContinueGame();
     }
 
     public void FinishGame(bool _isClear)
     {
-        ChangeStae(PlayState.Finish);
+        ChangeState(PlayState.Finish);
 
         if (_isClear)
         {
@@ -144,30 +158,33 @@ public class GameManager : Singleton<GameManager>
         {
             DialogManager.Instance.ShowDialog("Failed");
         }
+
+        AdsManager.Instance.ShowInterstitial();
     }
 
     public void RestartLevel()
     {
-        ChangeStae(PlayState.Ready);
+        ChangeState(PlayState.Ready);
 
         LoadLevel(currentLevel);
     }
 
+
     public void PlayNextLevel()
     {
-        ChangeStae(PlayState.Ready);
+        ChangeState(PlayState.Ready);
 
         LoadLevel(currentLevel + 1);
     }
 
     public void LeaveLevel()
     {
-        ChangeStae(PlayState.Ready);
+        ChangeState(PlayState.Ready);
 
         StateController.Instance.ChangeState("StageSelect", true);
     }
 
-    public void ChangeStae(PlayState _state)
+    public void ChangeState(PlayState _state)
     {
         state = _state;
     }
@@ -200,6 +217,7 @@ public class GameManager : Singleton<GameManager>
     {
         if(SkillManager.Instance.currentEnergy == GameConst.MaxEnergy)
         {
+            Debug.Log("full charge energy");
             return;
         }
 

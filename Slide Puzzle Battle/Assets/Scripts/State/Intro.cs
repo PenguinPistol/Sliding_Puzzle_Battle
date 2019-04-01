@@ -11,7 +11,7 @@ public class Intro : State
         yield return null;
     }
 
-    public override void FirstFrame()
+    public override void Begin()
     {
     }
 

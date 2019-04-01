@@ -12,7 +12,6 @@ public class SkillManager : Singleton<SkillManager>
 
     public int currentEnergy;
     public float recoveryTime;
-    public float elapseRecoveryTime;
 
     private bool doRecovery;
 
@@ -43,14 +42,13 @@ public class SkillManager : Singleton<SkillManager>
 
         if (doRecovery == false)
         {
+            recoveryTime = GameConst.Cooldown_EnergyRecovery;
             StartCoroutine(RecoveryEnergy());
         }
     }
 
     private IEnumerator RecoveryEnergy()
     {
-        recoveryTime = GameConst.Cooldown_EnergyRecovery - elapseRecoveryTime;
-
         doRecovery = true;
 
         while (recoveryTime > 0f)
@@ -61,15 +59,15 @@ public class SkillManager : Singleton<SkillManager>
         }
 
         currentEnergy++;
-        energyBoard.CheckCurrentEnergy(true);
 
-        if(elapseRecoveryTime > 0)
+        if(energyBoard != null)
         {
-            elapseRecoveryTime = 0f;
+            energyBoard.CheckCurrentEnergy(true);
         }
 
         if (currentEnergy < GameConst.MaxEnergy)
         {
+            recoveryTime = GameConst.Cooldown_EnergyRecovery;
             StartCoroutine(RecoveryEnergy());
         }
         else

@@ -7,7 +7,7 @@ namespace com.PlugStudio.Patterns
     public abstract class State : MonoBehaviour, ITouchObservable
     {
         public abstract IEnumerator Initialize(params object[] _data);
-        public abstract void FirstFrame();
+        public abstract void Begin();
         public abstract void Execute();
         public abstract void Release();
 

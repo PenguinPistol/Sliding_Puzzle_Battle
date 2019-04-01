@@ -6,15 +6,12 @@ using com.PlugStudio.Patterns;
 
 public class Game : State
 {
-    private Ray2D ray;
-    private RaycastHit2D hit;
-    private StageData stage;
-
     [Header("UI")]
+    public RectTransform contentView;
+    public Animator settingView;
     public Text title;
     public Text attckLimitText; // 공격횟수
     public Text timeLimitText;
-    public Animator settingView;
 
     [Header("Touch Layer")]
     public LayerMask raycastMask;
@@ -22,18 +19,42 @@ public class Game : State
     [Space]
     public Puzzle puzzle;
 
+    // 터치 관련
+    private Ray2D ray;
+    private RaycastHit2D hit;
+    private StageData stage;
+
+    // 게임진행관련
     private Animator timeLimitAnimator;
-    private float currentTimeLimit;
     private AudioSource clockSound;
+    private float currentTimeLimit;
+    private bool isContinue;
 
     public override IEnumerator Initialize(params object[] _data)
     {
+#if UNITY_ANDROID
+        //float height = Screen.height < 1920f ? 1920 : Screen.height;
+
+        //if(AdsManager.Instance.LoadedBanner)
+        //{
+        //    height -= AdsManager.Instance.BannerHeight;
+        //}
+
+        //contentView.sizeDelta = new Vector2(0, height);
+        //settingView.GetComponent<RectTransform>().sizeDelta = contentView.sizeDelta;
+
+        if (AdsManager.Instance.LoadedReward == false)
+        {
+            AdsManager.Instance.RequestReward();
+        }
+#endif
+
         int index = (int)_data[0];
 
         stage = GameManager.Instance.Stages[index];
         timeLimitAnimator = timeLimitText.GetComponent<Animator>();
-
         title.text = stage.title;
+        isContinue = false;
 
         if(stage.isAchieve[0])
         {
@@ -51,14 +72,14 @@ public class Game : State
             timeLimitText.text = string.Format("{0:F0}", currentTimeLimit);
         }
         
-        StartCoroutine(puzzle.Create(stage));
+        StartCoroutine(puzzle.Initialized(stage));
 
         InputController.Instance.AddObservable(this);
 
         yield return null;
     }
 
-    public override void FirstFrame()
+    public override void Begin()
     {
         // 튜토리얼 체크
         if (stage.level == 1 && GameManager.Instance.IsViewTutorial == false)
@@ -190,15 +211,41 @@ public class Game : State
         }
     }
     
+    // UI 접근용
     public void PauseGame()
     {
         GameManager.Instance.PauseGame(true);
         settingView.Play("Setting_Show");
     }
 
+    // UI 접근용
     public void ResumeGame()
     {
         GameManager.Instance.PauseGame(false);
         settingView.Play("Setting_Close");
+    }
+
+    public void ContinueGame()
+    {
+        if(stage.isAchieve[0])
+        {
+            puzzle.currentAttackLimit = stage.AttackLimit;
+        }
+
+        if (stage.isAchieve[1])
+        {
+            timeLimitAnimator.SetBool("Timeout", false);
+
+            if(clockSound != null)
+            {
+                clockSound.Stop();
+                Destroy(clockSound.gameObject);
+            }
+
+            currentTimeLimit = stage.TimeLimit;
+        }
+
+        GameManager.Instance.ChangeState(GameManager.PlayState.Play);
+        StartCoroutine(puzzle.Shuffle("Tile_Respawn"));
     }
 }

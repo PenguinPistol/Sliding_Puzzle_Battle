@@ -7,6 +7,8 @@ public class GoogleAdsBanner
 
     private BannerView m_BannerView = null;
 
+    public float Height { get { return m_BannerView.GetHeightInPixels(); } }
+
     private GoogleAdsBanner(Builder builder)
     {
         m_BannerView = builder.Ad;
@@ -40,9 +42,24 @@ public class GoogleAdsBanner
             adPosition = _adPosition;
         }
 
+        public Builder(string _unitId, AdSize _adSize, int _x, int _y)
+        {
+            bannerView = new BannerView(_unitId, _adSize, _x, _y);
+
+            adSize = _adSize;
+            adPosition = AdPosition.Bottom;
+        }
+
         public Builder SetTestMode(bool _testMode)
         {
             bannerView = new BannerView(TEST_UNIT_ID, adSize, adPosition);
+            return this;
+        }
+
+        public Builder SetTestMode(bool _testMode, int _x, int _y)
+        {
+            bannerView = new BannerView(TEST_UNIT_ID, adSize, _x, _y);
+
             return this;
         }
 
@@ -56,8 +73,8 @@ public class GoogleAdsBanner
         {
             bannerView.OnAdFailedToLoad += _handler;
             return this;
-
         }
+
         public Builder SetOnAdOpening(EventHandler<EventArgs> _handler)
         {
             bannerView.OnAdOpening += _handler;

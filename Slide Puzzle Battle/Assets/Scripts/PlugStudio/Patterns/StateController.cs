@@ -73,7 +73,7 @@ namespace com.PlugStudio.Patterns
                 yield return loadingView.FinishAnimation();
             }
 
-            currentState.FirstFrame();
+            currentState.Begin();
         }
     }
 }
