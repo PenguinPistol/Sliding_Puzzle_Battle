@@ -30,7 +30,8 @@ public class StageSelect : State
         }
 #endif
 
-        yield return StartCoroutine(listView.Init(GameManager.Instance.Stages));
+        yield return listView.Init(GameManager.Instance.Stages);
+        yield return listView.SetScrollPosition(GameManager.Instance.LastPlayedLevel + 1, true);
 
         SoundManager.Instance.PlayBGM(0);
     }

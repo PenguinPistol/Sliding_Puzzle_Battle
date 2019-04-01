@@ -65,7 +65,7 @@ namespace com.PlugStudio.Patterns
                 currentState = beforeState;
             }
 
-            yield return StartCoroutine(currentState.Initialize(_data));
+            yield return currentState.Initialize(_data);
 
             if (loadingView != null && _animated)
             {

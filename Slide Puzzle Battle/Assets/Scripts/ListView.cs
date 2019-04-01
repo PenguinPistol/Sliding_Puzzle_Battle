@@ -15,13 +15,47 @@ public abstract class ListView<TItem, TData> : MonoBehaviour
     public List<TItem> items;
     public TItem listItemPrefab;
     public Transform contentView;
-    public ScrollRect scrollRect;
+    public RectTransform contentsRect;
+
+    private Vector2 listRectSize;
+    private Vector2 itemRectSize;
+    private int viewItemCount;
+    private float spacing;
 
     /// <summary>
     /// Initialize List
     /// </summary>
     /// <param name="_items">list item data</param>
-    public abstract IEnumerator Init(List<TData> _items);
+    public virtual IEnumerator Init(List<TData> _items)
+    {
+        for (int i = 0; i < _items.Count; i++)
+        {
+            var itemView = Instantiate(listItemPrefab, contentView);
+
+            itemView.Init(_items[i], i);
+
+            var click = itemView.GetComponent<Button>();
+
+            if (click == null)
+            {
+                click = itemView.gameObject.AddComponent<Button>();
+            }
+
+            click.onClick.AddListener(() =>
+            {
+                SelectItem(itemView.Index);
+            });
+
+            items.Add(itemView);
+
+            yield return null;
+        }
+
+        listRectSize = GetComponent<RectTransform>().sizeDelta;
+        itemRectSize = listItemPrefab.GetComponent<RectTransform>().sizeDelta;
+        viewItemCount = Mathf.RoundToInt(listRectSize.y / itemRectSize.y);
+        spacing = contentsRect.GetComponent<VerticalLayoutGroup>().spacing;
+    }
 
     /// <summary>
     /// 리스트 아이템 클릭 시 처리
@@ -34,46 +68,35 @@ public abstract class ListView<TItem, TData> : MonoBehaviour
     /// 리스트 스크롤 위치 설정
     /// </summary>
     /// <param name="_targetIndex">target index</param>
-    /// <param name="_isVertial">scroll direction.(true -> vertical / false -> holizontal)</param>
-    public void SetScrollPosition(int _targetIndex, bool _isVertial)
+    /// <param name="_aimated">scroll direction.(true -> vertical / false -> holizontal)</param>
+    public IEnumerator SetScrollPosition(int _targetIndex, bool _aimated)
     {
-        if(scrollRect == null)
+        int viewItemCountHalf = viewItemCount / 2;
+        int index = _targetIndex - viewItemCountHalf;
+
+        if(_targetIndex <= viewItemCountHalf)
         {
-            Debug.LogFormat("listview({0})::SetScrollRectPosition() >> scrollRect is null", this.GetType().Name);
-            return;
+            index = 0;
+        }
+        else if (_targetIndex >= items.Count - viewItemCountHalf)
+        {
+            index = items.Count - viewItemCountHalf;
         }
 
-        if(items == null)
+        float targetPosition = (itemRectSize.y * index) + (spacing * index);
+        float currentPosition = 0;
+
+        if(_aimated)
         {
-            Debug.LogFormat("listview({0})::SetScrollRectPosition() >> items is null", this.GetType().Name);
-            return;
-        }
-
-        float targetPosition = 1f - (float)_targetIndex / items.Count;
-
-        StartCoroutine(Scroll(targetPosition, _isVertial));
-    }
-
-    private IEnumerator Scroll(float _targetPosition, bool _isVertial)
-    {
-        float currentPosition = 1f;
-
-        while(currentPosition > _targetPosition)
-        {
-            currentPosition -= Time.deltaTime;
-
-            if (_isVertial)
+            while (currentPosition < targetPosition)
             {
-                scrollRect.verticalNormalizedPosition = currentPosition;
-            }
-            else
-            {
-                scrollRect.horizontalNormalizedPosition = currentPosition;
-            }
+                currentPosition += itemRectSize.y;
 
-            yield return null;
+                contentsRect.transform.localPosition = Vector3.up * currentPosition;
+                yield return null;
+            }
         }
 
-        scrollRect.verticalNormalizedPosition = _targetPosition;
+        contentsRect.transform.localPosition = Vector3.up * targetPosition;
     }
 }
