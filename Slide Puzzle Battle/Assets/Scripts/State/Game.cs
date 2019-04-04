@@ -7,7 +7,6 @@ using com.PlugStudio.Patterns;
 public class Game : State
 {
     [Header("UI")]
-    public RectTransform canvas;
     public RectTransform contentView;
     public Animator settingView;
     public Text title;
@@ -29,26 +28,33 @@ public class Game : State
     private Animator timeLimitAnimator;
     private AudioSource clockSound;
     private float currentTimeLimit;
+    private bool isContinue;
 
     public override IEnumerator Initialize(params object[] _data)
     {
-        Vector2 size = contentView.sizeDelta;
+#if UNITY_ANDROID
+        //float height = Screen.height < 1920f ? 1920 : Screen.height;
 
-        size.y = SizeChanger.Calculate(canvas);
+        //if(AdsManager.Instance.LoadedBanner)
+        //{
+        //    height -= AdsManager.Instance.BannerHeight;
+        //}
 
-        contentView.sizeDelta = size;
-        settingView.GetComponent<RectTransform>().sizeDelta = size;
+        //contentView.sizeDelta = new Vector2(0, height);
+        //settingView.GetComponent<RectTransform>().sizeDelta = contentView.sizeDelta;
 
         if (AdsManager.Instance.LoadedReward == false)
         {
             AdsManager.Instance.RequestReward();
         }
+#endif
 
         int index = (int)_data[0];
 
         stage = GameManager.Instance.Stages[index];
         timeLimitAnimator = timeLimitText.GetComponent<Animator>();
         title.text = stage.title;
+        isContinue = false;
 
         if(stage.isAchieve[0])
         {

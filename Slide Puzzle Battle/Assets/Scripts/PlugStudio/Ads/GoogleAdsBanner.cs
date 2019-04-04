@@ -22,11 +22,6 @@ public class GoogleAdsBanner
         m_BannerView.LoadAd(request);
     }
 
-    public void SetPosition(int x, int y)
-    {
-        m_BannerView.SetPosition(x, y);
-    }
-
     public class Builder
     {
         private BannerView bannerView;

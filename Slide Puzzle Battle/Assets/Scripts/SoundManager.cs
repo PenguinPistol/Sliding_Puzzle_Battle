@@ -20,25 +20,10 @@ public class SoundManager : Singleton<SoundManager>
         soundOptions = new List<IOptionObservable>();
     }
 
-    private void OnDestroy()
-    {
-        StopAllCoroutines();
-    }
-
     public void PlayBGM(int _index)
     {
-        if(GameManager.Instance.GameData.muteBGM)
-        {
-            bgm.mute = true;
-        }
-
         if(bgm.isPlaying)
         {
-            if (bgm.clip.name.Equals(bgms[_index].name))
-            {
-                return;
-            }
-
             bgm.Stop();
         }
 
