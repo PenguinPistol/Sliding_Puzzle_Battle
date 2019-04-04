@@ -4,6 +4,8 @@ using com.PlugStudio.Patterns;
 
 public class StageSelect : State
 {
+    [Header("UI")]
+    public RectTransform canvas;
     public RectTransform contentView;
     public RectTransform settingView;
     public StageList listView;
@@ -13,26 +15,20 @@ public class StageSelect : State
 
     public override IEnumerator Initialize(params object[] _data)
     {
-#if UNITY_ANDROID
-        //float height = Screen.height < 1920f ? 1920 : Screen.height;
+        Vector2 size = contentView.sizeDelta;
 
-        //if (AdsManager.Instance.LoadedBanner)
-        //{
-        //    height -= AdsManager.Instance.BannerHeight;
-        //}
-
-        //contentView.sizeDelta = new Vector3(0, height);
-        //settingView.sizeDelta = contentView.sizeDelta;
+        size.y = SizeChanger.Calculate(canvas);
+        
+        contentView.sizeDelta = size;
+        settingView.sizeDelta = size;
 
         if (AdsManager.Instance.LoadedReward == false)
         {
             AdsManager.Instance.RequestReward();
         }
-#endif
 
         yield return listView.Init(GameManager.Instance.Stages);
         yield return listView.SetScrollPosition(GameManager.Instance.LastPlayedLevel + 1, true);
-
         SoundManager.Instance.PlayBGM(0);
     }
 
@@ -42,7 +38,6 @@ public class StageSelect : State
         {
             isInit = true;
 
-            //AdsManager.Instance.ShowBanner();
 
             beforeCompleteLevel = GameManager.Instance.CompleteLevel;
         }
@@ -55,6 +50,8 @@ public class StageSelect : State
                 StartCoroutine(listView.CheckClear());
             }
         }
+
+        AdsManager.Instance.ShowBanner();
     }
 
     public override void Execute()

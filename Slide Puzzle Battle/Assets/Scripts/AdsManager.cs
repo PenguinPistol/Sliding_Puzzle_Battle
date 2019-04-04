@@ -30,7 +30,13 @@ public class AdsManager : Singleton<AdsManager>
 
     public bool LoadedReward { get { return reward.Loaded; } }
     public bool LoadedBanner { get { return loadedBanner; } }
-    public float BannerHeight { get { return banner.Height; } }
+    public float BannerHeight {
+        get {
+            if (loadedBanner == false)
+                return 0;
+            return banner.Height;
+        }
+    }
 
     private int PixelsToDp(int _pixel)
     {
@@ -60,27 +66,22 @@ public class AdsManager : Singleton<AdsManager>
         MobileAds.Initialize(APP_ID);
 
         AdSize bannerSize = new AdSize(AdSize.FullWidth, 50);
-        loadedBanner = true;
 
+        int notchHeight = Display.main.systemHeight - Screen.height;
 
-        if (Display.main.systemHeight != Screen.height)
+        if (notchHeight > 0)
         {
-            loadedBanner = false;
+            notchHeight = Mathf.RoundToInt(PixelsToDp(notchHeight));
         }
 
-        //int notchHeight = Display.main.systemHeight - Screen.height;
-        ////int yDP = PixelsToDp(Screen.height + notchHeight) - bannerSize.Height;
-        //int yDP = 0;
+        int y = Mathf.RoundToInt(PixelsToDp(Display.main.systemHeight)) * 2 - notchHeight;
 
-        //Debug.Log("screen dpi : " + Screen.dpi);
-        //Debug.Log("notch height : " + notchHeight);
-        //Debug.Log("yDP : " + yDP);
-        //Debug.Log("display height : " + Display.main.systemHeight + " / " + PixelsToDp(Display.main.systemHeight));
-        //Debug.Log("screen height : " + Screen.height + " / " + PixelsToDp(Screen.height));
-
-        banner = new GoogleAdsBanner.Builder(BANNER_ID, bannerSize)
+        banner = new GoogleAdsBanner.Builder(BANNER_ID, bannerSize, 0, 0)
                   .SetOnFailedLaoded(BannerFailedToLoad)
+                  .SetOnAdLaoded(BannerSuccessLoaded)
                   .Build();
+
+        banner.SetPosition(0, y);
 
         inter = new GoogleAdsInterstitial.Builder(INTERSTITIAL_ID)
             .SetOnAdFailedToLoad(InterFailed)
@@ -100,11 +101,6 @@ public class AdsManager : Singleton<AdsManager>
 
     public void ShowBanner()
     {
-        if(Display.main.systemHeight != Screen.height)
-        {
-            return;
-        }
-
         banner.Request();
     }
 
@@ -193,9 +189,14 @@ public class AdsManager : Singleton<AdsManager>
 
     public void BannerFailedToLoad(object sender, AdFailedToLoadEventArgs args)
     {
-        Debug.Log("## Banner Failed to load : " + args.Message);
+        Debug.LogFormat("## Banner Failed to load : {0} ##", args.Message);
 
         loadedBanner = false;
+    }
+
+    public void BannerSuccessLoaded(object sender, EventArgs args)
+    {
+        loadedBanner = true;
     }
 
     private IEnumerator InterstitalAdCooldown()
