@@ -6,6 +6,7 @@ public abstract class Skill : ScriptableObject
 {
     public new string name;
     public string description;
+    public string description_kr;
     public Sprite sprite;
     public int unlockLevel;
     public float cooldown;

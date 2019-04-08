@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6d1251fcf6dd7e4ca97a6f611b429e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  messageText: {fileID: 7869322217666076758}
   positiveButton: {fileID: 7869322218765905418}
   negativeButton: {fileID: 7869322217673602713}
   neatralButton: {fileID: 0}
@@ -211,7 +212,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -40}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -130, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7869322217666076757
 CanvasRenderer:
@@ -254,8 +255,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uC9C4\uD589 \uC911\uC778 \uD37C\uC990\uC758 \uC815\uBCF4\uB294\n\uC800\uC7A5\uB418\uC9C0
-    \uC54A\uC2B5\uB2C8\uB2E4."
+  m_Text: The information in progress is not saved.
 --- !u!114 &4356440989259278506
 MonoBehaviour:
   m_ObjectHideFlags: 0

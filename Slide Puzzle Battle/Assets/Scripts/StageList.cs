@@ -6,40 +6,6 @@ using com.PlugStudio.Patterns;
 
 public class StageList : ListView<StageListItem, StageData>
 {
-    public override IEnumerator Init(List<StageData> _items)
-    {
-        float time = Time.time;
-
-        for (int i = 0; i < _items.Count; i++)
-        {
-            var itemView = Instantiate(listItemPrefab, contentView);
-
-            itemView.Init(_items[i], i);
-
-            var click = itemView.GetComponent<Button>();
-
-            if(click == null)
-            {
-                click = itemView.gameObject.AddComponent<Button>();
-            }
-
-            click.onClick.AddListener(() =>
-            {
-                SelectItem(itemView.Index);
-            });
-
-            items.Add(itemView);
-
-            yield return null;
-        }
-
-        SetScrollPosition(GameManager.Instance.CompleteLevel, true);
-
-        time = Time.time - time;
-
-        Debug.Log("listview initialized time : " + time);
-    }
-
     public override void SelectItem(int _index)
     {
         if(items[_index].Data.state.Equals(StageData.StageState.Lock))
@@ -51,37 +17,34 @@ public class StageList : ListView<StageListItem, StageData>
         GameManager.Instance.LoadLevel(_index);
     }
 
-    public void CheckClear()
+    public IEnumerator CheckClear()
     {
         int completeLevel = GameManager.Instance.CompleteLevel;
 
-        if (completeLevel == 0)
+        if (completeLevel != 0)
         {
-            return;
-        }
-
-        if(completeLevel == GameManager.Instance.Stages.Count - 1)
-        {
-            for (int i = 0; i < GameManager.Instance.Stages.Count; i++)
+            if (completeLevel == GameManager.Instance.Stages.Count - 1)
             {
-                items[i].Data.state = StageData.StageState.Clear;
-                items[i].animator.Play("Clear_Idle");
+                for (int i = 0; i < GameManager.Instance.Stages.Count; i++)
+                {
+                    items[i].Data.state = StageData.StageState.Clear;
+                    items[i].animator.Play("Clear_Idle");
+                }
+            }
+            else
+            {
+                for (int i = 0; i < completeLevel - 1; i++)
+                {
+                    items[i].Data.state = StageData.StageState.Clear;
+                    items[i].animator.Play("Clear_Idle");
+                }
+
+                items[completeLevel - 1].Data.state = StageData.StageState.Clear;
+                yield return items[completeLevel - 1].PlayAnimation("Clear");
+
+                items[completeLevel].Data.state = StageData.StageState.Unlock;
+                yield return items[completeLevel].PlayAnimation("Unlock");
             }
         }
-        else
-        {
-            for (int i = 0; i < completeLevel - 1; i++)
-            {
-                items[i].Data.state = StageData.StageState.Clear;
-                items[i].animator.Play("Clear_Idle");
-            }
-
-            items[completeLevel-1].Data.state = StageData.StageState.Clear;
-            items[completeLevel-1].animator.Play("Clear");
-
-            items[completeLevel].Data.state = StageData.StageState.Unlock;
-            items[completeLevel].animator.Play("Unlock");
-        }
-
     }
 }

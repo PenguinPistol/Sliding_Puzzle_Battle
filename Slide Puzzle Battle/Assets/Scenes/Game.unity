@@ -844,11 +844,11 @@ RectTransform:
   m_Father: {fileID: 2114915035}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -147, y: -165}
-  m_SizeDelta: {x: 67, y: 125}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.9, y: 0.95}
+  m_AnchorMax: {x: 0.9, y: 0.95}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 67, y: 124}
+  m_Pivot: {x: 1, y: 1}
 --- !u!114 &901152516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1510,7 +1510,6 @@ MonoBehaviour:
   descriptionPopup: {fileID: 0}
   currentEnergy: 0
   recoveryTime: 0
-  elapseRecoveryTime: 0
 --- !u!1 &2114915034
 GameObject:
   m_ObjectHideFlags: 0
@@ -1566,7 +1565,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 1353975973}
   playButton: {fileID: 69550795}
-  sprites:
+  sprites_en:
+  - {fileID: 21300000, guid: 295d504270c27874d92a2f7499cf2849, type: 3}
+  - {fileID: 21300000, guid: f8fab318b560bd449b7923023f0d1823, type: 3}
+  - {fileID: 21300000, guid: 86f722df3953bee4ba5ab51c6d72f727, type: 3}
+  sprites_kr:
   - {fileID: 21300000, guid: d925d7068af30a447a377cbad3f7f73e, type: 3}
   - {fileID: 21300000, guid: 638ec2f8b6d582346b478c4982c20e45, type: 3}
   - {fileID: 21300000, guid: a720e4f740389ef488cc3fbd328c935f, type: 3}

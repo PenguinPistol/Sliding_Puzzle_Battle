@@ -8,18 +8,29 @@ public class Tutorial : MonoBehaviour
     public Image image;
     public GameObject playButton;
 
-    public Sprite[] sprites;
+    public Sprite[] sprites_en;
+    public Sprite[] sprites_kr;
 
     private int index;
+    private Sprite[] images;
 
     public void Start()
     {
         GameManager.Instance.PauseGame(true);
+
+        images = sprites_en;
+
+        if (Application.systemLanguage.ToString().Equals("Korean"))
+        {
+            images = sprites_kr;
+        }
+
+        image.sprite = images[0];
     }
 
     private void Update()
     {
-        if(index == sprites.Length - 1)
+        if(index == sprites_en.Length - 1)
         {
             playButton.SetActive(true);
         }
@@ -34,15 +45,15 @@ public class Tutorial : MonoBehaviour
         if(index > 0)
         {
             playButton.SetActive(false);
-            image.sprite = sprites[--index];
+            image.sprite = images[--index];
         }
     }
 
     public void NextPage()
     {
-        if(index < sprites.Length - 1 )
+        if(index < sprites_en.Length - 1 )
         {
-            image.sprite = sprites[++index];
+            image.sprite = images[++index];
         }
         else
         {

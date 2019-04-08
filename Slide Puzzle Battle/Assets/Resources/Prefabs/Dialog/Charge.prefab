@@ -533,6 +533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3be30009dcf4edb4798c1ee7948a5f46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  messageText: {fileID: 7394073182082424286}
   positiveButton: {fileID: 7394073182390489357}
   negativeButton: {fileID: 7394073183096158528}
   neatralButton: {fileID: 0}

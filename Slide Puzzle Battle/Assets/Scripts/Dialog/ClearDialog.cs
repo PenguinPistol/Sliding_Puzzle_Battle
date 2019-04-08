@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using com.PlugStudio.Patterns;
-
-public class ClearDialog : Dialog
+﻿public class ClearDialog : Dialog
 {
+    public override void Initialized()
+    {
+    }
+
     public override void NegativeAction()
     {
         // 스테이지 선택

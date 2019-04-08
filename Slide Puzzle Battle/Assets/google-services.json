@@ -8,26 +8,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1038089653907:android:cf09438f0a086b98",
+        "mobilesdk_app_id": "1:1038089653907:android:4f06f2cb945e6fac",
         "android_client_info": {
-          "package_name": "com.plugstudio.spb"
+          "package_name": "com.teamplug.spb"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1038089653907-50hbciisavifetf34kmu1p0qtgi6mn2o.apps.googleusercontent.com",
+          "client_id": "1038089653907-e41eil7q83ap9d75t5lcl7d56es1dru2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.plugstudio.spb",
+            "package_name": "com.teamplug.spb",
             "certificate_hash": "7111c42ec5251747112ee29f74e2adef13e3ff4d"
-          }
-        },
-        {
-          "client_id": "1038089653907-d1ses7uuupkkccvp9kotmu2dtoqt264p.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.plugstudio.spb",
-            "certificate_hash": "4c405cdbc01a1b9758489e4ff0ebb4d54e830833"
           }
         },
         {

@@ -3,11 +3,12 @@ using UnityEngine.UI;
 
 public abstract class Dialog : MonoBehaviour
 {
+    public Text messageText;
     public Button positiveButton;
     public Button negativeButton;
     public Button neatralButton;
 
-    private void Start()
+    private void Awake()
     {
         if (positiveButton != null)
         {
@@ -23,7 +24,11 @@ public abstract class Dialog : MonoBehaviour
         {
             neatralButton.onClick.AddListener(NeatralAction);
         }
+
+        Initialized();
     }
+
+    public abstract void Initialized();
 
     public virtual void PositiveAction()
     {}
