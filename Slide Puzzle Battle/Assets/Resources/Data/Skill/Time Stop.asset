@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Time Stop
   m_EditorClassIdentifier: 
   name: "\uC2DC\uAC04\uC815\uC9C0"
-  description: "\uB2E4\uB978 \uD589\uB3D9\uC744 \uD558\uAE30 \uC804\uAE4C\uC9C0 \uC2DC\uAC04\uC744
-    \uC815\uC9C0 \uC2DC\uD0B5\uB2C8\uB2E4."
+  description: Time Limit and cool time will stop before the next action.
+  description_kr: "\uB2E4\uB978 \uD589\uB3D9\uC744 \uD558\uAE30 \uC804\uAE4C\uC9C0
+    \uC2DC\uAC04\uC744 \uC815\uC9C0 \uC2DC\uD0B5\uB2C8\uB2E4."
   sprite: {fileID: 21300000, guid: a1f7ba0ebf76cd741b9fab46b33d1372, type: 3}
   unlockLevel: 46
   cooldown: 30

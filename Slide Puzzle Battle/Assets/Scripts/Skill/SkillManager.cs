@@ -102,6 +102,14 @@ public class SkillManager : Singleton<SkillManager>
         position.x = _position.x / 2;
 
         descriptionPopup.transform.localPosition = position;
-        descriptionPopup.Show(_data.description);
+
+        if(Application.systemLanguage.ToString().Equals("Korean"))
+        {
+            descriptionPopup.Show(_data.description_kr);
+        }
+        else
+        {
+            descriptionPopup.Show(_data.description);
+        }
     }
 }

@@ -54,7 +54,7 @@ public class StageListItem : ListViewItem<StageData>
         }
     }
 
-    private IEnumerator PlayAnimation(string _clipName)
+    public IEnumerator PlayAnimation(string _clipName)
     {
         if(isPlayAnimation == false)
         {
@@ -62,7 +62,13 @@ public class StageListItem : ListViewItem<StageData>
 
             animator.Play(_clipName);
 
-            while(animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            while (!animator.GetCurrentAnimatorStateInfo(0).IsName(_clipName))
+            {
+                //전환 중일 때 실행되는 부분
+                yield return null;
+            }
+
+            while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
             {
                 yield return null;
             }

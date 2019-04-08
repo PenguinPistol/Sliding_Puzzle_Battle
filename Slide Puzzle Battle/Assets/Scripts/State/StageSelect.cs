@@ -52,7 +52,7 @@ public class StageSelect : State
             {
                 beforeCompleteLevel = GameManager.Instance.CompleteLevel;
 
-                listView.CheckClear();
+                StartCoroutine(listView.CheckClear());
             }
         }
     }

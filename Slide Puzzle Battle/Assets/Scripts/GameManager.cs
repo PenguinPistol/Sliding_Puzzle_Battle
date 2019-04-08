@@ -22,16 +22,16 @@ public class GameManager : Singleton<GameManager>
 
     public GameObject tutorial;
 
-    public Database.SavedGameData   GameData    { get { return db.GameData; } }
-    public List<StageData>          Stages      { get { return db.Stages; } }
-    public List<Skill>              Skills      { get { return db.Skills; } }
-    public PlayState                State       { get { return state; } }
-    public bool                     IsPlaying   { get { return state == PlayState.Play; } }
-    public bool                     IsPause     { get { return state == PlayState.Pause; } }
-    public int                      BoardSize   { get { return Stages[currentLevel].BoardSize; } }
-    public int                      CompleteLevel { get { return db.GameData.completeLevel; } }
-    public int                      LastPlayedLevel { get { return currentLevel; } }
-    public bool                     IsContinued { get { return isContinued; } }
+    public Database.SavedGameData GameData    { get { return db.GameData; } }
+    public List<StageData>        Stages      { get { return db.Stages; } }
+    public List<Skill>            Skills      { get { return db.Skills; } }
+    public PlayState              State       { get { return state; } }
+    public bool                   IsPlaying   { get { return state == PlayState.Play; } }
+    public bool                   IsPause     { get { return state == PlayState.Pause; } }
+    public int                    BoardSize   { get { return Stages[currentLevel].BoardSize; } }
+    public int                    CompleteLevel { get { return db.GameData.completeLevel; } }
+    public int                    LastPlayedLevel { get { return currentLevel; } }
+    public bool                   IsContinued { get { return isContinued; } }
 
     public bool IsViewTutorial {
         get { return db.GameData.viewTutorial; }
@@ -57,6 +57,8 @@ public class GameManager : Singleton<GameManager>
         StateController.Instance.Init();
         StateController.Instance.ChangeState("Intro", false);
 
+        float time = Time.time;
+
         yield return StartCoroutine(db.ReadGameConst());
         db.LoadGameData();
 
@@ -64,6 +66,8 @@ public class GameManager : Singleton<GameManager>
         yield return StartCoroutine(db.ReadLevelMonsterInfo());
 
         SkillManager.Instance.Init();
+
+        Debug.Log("elapse time : " + (Time.time - time));
 
         StateController.Instance.ChangeState("StageSelect", false);
         currentLevel = GameData.completeLevel;
